@@ -70,7 +70,8 @@ os.environ["OMP_NUM_THREADS"] = (
 
 
 def is_ascii(s=""):
-    # Is string composed of all ASCII (no UTF) characters? (note str().isascii() introduced in python 3.7)
+    # Is string composed of all ASCII (no UTF) characters?
+    # (note str().isascii() introduced in python 3.7)
     s = str(s)  # convert list, tuple, None, etc. to str
     return len(s.encode().decode("ascii", "ignore")) == len(s)
 
@@ -639,7 +640,8 @@ def check_dataset(data, autodownload=True):
         val = [
             Path(x).resolve() for x in (val if isinstance(val, list) else [val])
         ]  # val path
-        if not all(x.exists() for x in val):
+        # if not all(x.exists() for x in val):
+        if not os.path.exists(str(val)):
             LOGGER.info(
                 "\nDataset not found ⚠️, missing paths %s"
                 % [str(x) for x in val if not x.exists()]
@@ -659,7 +661,9 @@ def check_dataset(data, autodownload=True):
                 LOGGER.info(f"Running {s} ...")
                 r = os.system(s)
             else:  # python script
-                r = exec(s, {"yaml": data})  # return None
+                # r = exec(s, {"yaml": data})  # return None
+                r = 1
+                print("🐒")
             dt = f"({round(time.time() - t, 1)}s)"
             s = (
                 f"success ✅ {dt}, saved to {colorstr('bold', DATASETS_DIR)}"

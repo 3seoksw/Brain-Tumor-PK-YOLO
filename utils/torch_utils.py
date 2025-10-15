@@ -281,7 +281,7 @@ def de_parallel(model):
 
 
 def initialize_weights(model):
-    pretrained = torch.load("./data/V9back_1kpretrained_timm_style.pth")
+    pretrained = torch.load("./data/pretrain/V9back_1kpretrained_timm_style.pth")
     counter = 0
     for k, v in pretrained.items():
         counter += 1

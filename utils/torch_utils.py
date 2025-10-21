@@ -281,7 +281,13 @@ def de_parallel(model):
 
 
 def initialize_weights(model):
-    pretrained = torch.load("./data/pretrain/V9back_1kpretrained_timm_style.pth")
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+    pretrained = torch.load(
+        "./data/pretrain/V9back_1kpretrained_timm_style.pth", map_location=device
+    )
     counter = 0
     for k, v in pretrained.items():
         counter += 1

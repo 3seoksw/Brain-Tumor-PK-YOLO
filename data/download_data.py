@@ -8,9 +8,6 @@ import kagglehub
 
 from pathlib import Path
 
-# TODO: Br35H dataset
-# path = kagglehub.dataset_download("ahmedhamada0/brain-tumor-detection")
-
 
 def load_yaml():
     yaml_path = Path("data/multiplane.yaml")
@@ -32,17 +29,23 @@ def ensure_dir(dir: str):
     return Path(dir)
 
 
-def download_RSNA_MICCAI(dirs: tuple[str, str]):
-    ensure_dir("data/RSNA-MICCAI")
+def download_dataset(dirs: tuple[str, str], dataset_name: str):
+    dataset_dir = f"data/{dataset_name}"
+    ensure_dir(dataset_dir)
 
-    rsna_path = kagglehub.dataset_download(
-        "davidbroberts/brain-tumor-object-detection-datasets"
-    )
-    print(f"📀 RSNA_MICCAI downloaded\n└── ✅ Saved at: {rsna_path}")
+    if dataset_name == "RSNA-MICCAI":
+        handle = "davidbroberts/brain-tumor-object-detection-datasets"
+    elif dataset_name == "Br35H":
+        handle = "ahmedhamada0/brain-tumor-detection"
+    else:
+        raise KeyError(f"Unavailable dataset name: {dataset_name}\n")
 
-    dest_root = Path("data/RSNA-MICCAI")
-    rsna_path = Path(rsna_path)
-    subdirs = [dir for dir in rsna_path.iterdir() if dir.is_dir()]
+    path = kagglehub.dataset_download(handle)
+    print(f"📀 {dataset_name} downloaded\n└── ✅ Saved at: {path}")
+
+    dest_root = Path(f"data/{dataset_name}")
+    path = Path(path)
+    subdirs = [dir for dir in path.iterdir() if dir.is_dir()]
     print(f"📁 Copying downloaded files to {dest_root}...")
     for i, dir in enumerate(subdirs, 1):
         dest_path = dest_root / dir.name
@@ -70,5 +73,6 @@ def download_pretrained_weight(link: str):
 
 if __name__ == "__main__":
     dirs, link = load_yaml()
-    download_RSNA_MICCAI(dirs)
+    download_dataset(dirs, "RSNA-MICCAI")
+    download_dataset(dirs, "Br35H")
     download_pretrained_weight(link)

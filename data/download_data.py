@@ -33,7 +33,7 @@ def ensure_dir(dir: str):
 
 
 def download_RSNA_MICCAI(dirs: tuple[str, str]):
-    ensure_dir("data/RSNA_MICCAI")
+    ensure_dir("data/RSNA-MICCAI")
 
     rsna_path = kagglehub.dataset_download(
         "davidbroberts/brain-tumor-object-detection-datasets"

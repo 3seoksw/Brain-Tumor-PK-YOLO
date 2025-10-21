@@ -40,7 +40,7 @@ def download_RSNA_MICCAI(dirs: tuple[str, str]):
     )
     print(f"📀 RSNA_MICCAI downloaded\n└── ✅ Saved at: {rsna_path}")
 
-    dest_root = Path("data/RSNA_MICCAI")
+    dest_root = Path("data/RSNA-MICCAI")
     rsna_path = Path(rsna_path)
     subdirs = [dir for dir in rsna_path.iterdir() if dir.is_dir()]
     print(f"📁 Copying downloaded files to {dest_root}...")

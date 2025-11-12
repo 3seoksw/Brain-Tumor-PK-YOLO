@@ -10,7 +10,7 @@
 ```bash
 conda create -n <env-name> python==3.12.4
 conda activate <env-name>
-pip-compile --output-file=requirements.in requirements.txt
+pip-compile --output-file=requirements.txt requirements.in
 pip install -r requirements.txt
 ```
 

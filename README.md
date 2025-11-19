@@ -5,7 +5,7 @@
 > Original credits and license are preserved. We are not affiliated with the authors.
 > We appreciate the original authors' work.
 
-#### Installation
+## Installation
 
 ```bash
 conda create -n <env-name> python==3.12.4
@@ -14,12 +14,18 @@ pip-compile --output-file=requirements.txt requirements.in
 pip install -r requirements.txt
 ```
 
+## Preparation
+
 #### Dataset Preparation
 
 > [!IMPORTANT]
 > Before running a program, please go [here](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/tree/main/data/) for preparing the dataset required for the training.
 
-#### Training
+#### Pretraining
+
+Pretraining code can be found [here](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/tree/main/spark/pretrain).
+
+## Training
 
 ```bash
 python train_dual.py

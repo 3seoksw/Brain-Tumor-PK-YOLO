@@ -8,11 +8,11 @@ See [/INSTALL.md](/INSTALL.md) to prepare `pip` dependencies and the ImageNet da
 
 See [/pretrain/models/custom.py](/pretrain/models/custom.py).
 
-- [ ] implement `get_downsample_ratio` in [spark/pretrain/models/custom.py line 63](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/custom.py#L63).
-- [ ] implement `get_feature_map_channels` in [spark/pretrain/models/custom.py line 66](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/custom.py#L66).
-- [ ] implement `forward` in [spark/pretrain/models/custom.py line 69](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/custom.py#L69).
-- [ ] define `your_convnet(...)` with `@register_model` in [spark/pretrain/models/custom.py line 106](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/custom.py#L106).
-- [ ] add default kwargs of `your_convnet(...)` in [spark/pretrain/models/\_\_init\_\_.py line 34](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/__init__.py#L34).
+- [x] implement `get_downsample_ratio` in [spark/pretrain/models/custom.py line 63](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/custom.py#L63).
+- [x] implement `get_feature_map_channels` in [spark/pretrain/models/custom.py line 66](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/custom.py#L66).
+- [x] implement `forward` in [spark/pretrain/models/custom.py line 69](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/custom.py#L69).
+- [x] define `your_convnet(...)` with `@register_model` in [spark/pretrain/models/custom.py line 106](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/custom.py#L106).
+- [x] add default kwargs of `your_convnet(...)` in [spark/pretrain/models/\_\_init\_\_.py line 34](https://github.com/3seoksw/Brain-Tumor-PK-YOLO/blob/d7d9d5c18d8ac00d666b1d61f8617dee784258e3/spark/pretrain/models/__init__.py#L34).
 - [ ] **Note: see if your CNN contains SE module or global average pooling layer, and see if it contains GroupNorm**.
 
 Then run the experiment with `--model=your_convnet`.

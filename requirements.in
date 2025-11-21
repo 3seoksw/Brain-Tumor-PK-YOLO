@@ -43,9 +43,12 @@ seaborn>=0.11.0
 # tritonclient[all]~=2.24.0
 
 # Extras ----------------------------------------------------------------------
+pytz
 # mss
 albumentations>=1.0.3
 pycocotools>=2.0
-timm<=1.0.10
+timm==0.5.4
 opencv-python
 kagglehub
+tensorboardx
+typed-argument-parser

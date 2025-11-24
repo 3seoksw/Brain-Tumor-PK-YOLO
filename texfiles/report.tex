@@ -1,0 +1,154 @@
+\documentclass{article} % For LaTeX2e
+\usepackage[preprint]{stylefile}
+\usepackage{stylefile,times}
+\usepackage{hyperref}
+\usepackage{url}
+%\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
+
+
+\title{Brain Tumor Detection}
+
+
+\author{
+  Damilola Olaiya\thanks{Equal contribution.} \\
+  Carleton University \\
+  Ottawa, Canada \\
+  \texttt{damilolaolaiya@cmail.carleton.ca}
+  \And
+  Hamza Cecen\footnotemark[1] \\
+  Carleton University \\
+  Ottawa, Canada \\
+  \texttt{hamzacecen@cmail.carleton.ca}
+  \And
+  WooSeok Kim\footnotemark[1] \\
+  Carleton University \\
+  Ottawa, Canada \\
+  \texttt{wooseokkim@cmail.carleton.ca} \\ \\
+  \textsuperscript{*}These authors contributed equally to this work.
+}
+
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+Magnetic Resonance Imaging (MRI) has a central role in the detection and clinical assessment of brain tumors.
+Recent advancements in machine learning and object detection, especially YOLO-related frameworks, have significantly improved automated tumor localization in 2D multiplanar MRI slices.
+One of these, Pretrained Knowledge Guided YOLO (PK-YOLO) has demonstrated state-of-the-art performance by integrating SparK-pretrained RepViT backbone and specialized optimization techniques.
+However, the original PK-YOLO design exhibits notable limitations, primarily stemming from a plane-shift domain gap, with its backbone is pretrained exclusively on axial images, resulting in substantial performance disparities across planes.
+
+To solve the limitations, we propose a 3D Multiplanar Fusion framework.
+In this method, three different backbones, each of which is pretrained on an anatomical plane (\textit{i.e.}, axial, coronal, or sagittal), are used.
+Then the outputs of the backbones are combined using an adaptive router module that learns how much weight to give each plane.
+%%%%%% Summary of the results %%%%%%
+%This strategy helps the model understand features from all three planes more effectively, reduces the gap between different MRI views, and improves overall accuracy.
+%As a result, the model becomes more reliable and better suited for detecting brain tumors across multiplanar MRI scans.
+\end{abstract}
+
+\section{Introduction}
+Spotting brain tumors matters a lot when looking at medical scans, since finding them early and correctly helps doctors figure out what’s wrong, decide on treatments, and keep track of how patients are doing. %% ref req.
+MRIs are common for this job because they show fine details and distinguish soft tissues well. %% ref req.
+It is especially useful when multi-angle MRI views are used, such as top, front, and side cuts, which give different body viewpoints, making it easier for physicians to pin down where the tumor sits and understand its shape.
+
+Over the past few years, advances in machine learning have opened up the possibilities to integrate deep learning methods into the medical domain\cite{asif2025advancements}.
+Throughout active research, several papers employ multiple approaches (\textit{e.g.}, image processing, convolutional networks, attention-based networks) to improve brain tumor detection performance \cite{rasool2025brain}.
+%Lately, better computer vision and deep learning have boosted automatic tumor finding.
+% New research shows CNNs, along with transformer-style detectors, do well in detecting abnormal areas on brain scans.
+Of these tools, YOLO-based \cite{yolo} models shine, thanks to its speed, solid results, and live detection power. %% ref req.
+However, applying YOLO-based models in medical domain is not a simple task, because MRIs vary due to its unique layouts, noise types, and hidden features.
+
+To tackle these issues, M.~Kang \textit{et al.}~\cite{kang2025pk} proposed a new You Only Look Once (YOLO)-based \cite{yolo} brain tumor detection model by leveraging 2D multiplanar Magnetic Resonance Imaging (MRI) slices for model training and fine-tuning.
+% To tackle these issues, Kang’s team introduced PK-YOLO - a fresh take on YOLO built just to detect brain tumors through 2D MRI views from different angles.
+% Instead of starting from scratch, it uses a pre-trained RepViT base, fine-tuned with SparK masking, so it picks up patterns unique to tumor data.
+The model employs a pre-trained RepViT backbone, fine-tuned with SparK masking, to effectively capture and transfer brain tumor–specific knowledge.
+What helps it stand out is how it blends features across layers while swapping standard loss with Focaler-IoU, boosting precision, especially on tiny growths. %% not sure this line
+% The tests show that it beats the top-tier YOLO and DETR versions on all three scan types, proving that baked-in prior learning really lifts performance.
+The experiments show that it achieves the state-of-the-art performance, scoring the highest metrics on all three scan types.
+% In this report, we propose the limitations of the original paper and suggest refinements to bridge the identified gaps for further enhancements.
+Despite its performance, we have identified gaps in the model performance demonstrated by the plane-shift domain gap.
+%% more
+
+
+\section{Limitations of the Previous Work}
+% Even though it works well, PK-YOLO faces a clear issue - its base model learns only from axial views, yet predictions happen across all three body planes.
+% Because of this difference, there is a shift between training and use, causing big swings in how well objects are found depending on the view.
+% Take precision: in axial scans it is strong (mAP50 = 0.947), but in coronal it drops to 0.704 and even lower to 0.582 for sagittal cuts.
+% Such uneven results show that models struggle when moving between planes, pushing the need for smarter training that adapts to the distinct features of each orientation.
+
+% In reaction to this shortcoming, we introduce an improved setup - boosting PK-YOLO through plane-focused pretraining combined with smart layer merging.
+% The aim? To shrink mismatches across MRI views while helping the system adapt better to diverse scan orientations.
+
+\section{Related Work}
+Research on brain tumor detection using deep learning largely intersects with three key areas: DETR framework, brain tumor detection, and multiplanar MRI analysis.
+The PK-YOLO paper introduces contributions in all three areas, and the prior work they reference can be grouped into the following themes.
+
+\subsection{DETR Framework}
+Object detection approaches based on the DEtection TRansformer (DETR) architecture have evolved significantly in recent years, especially through improved training strategies and backbone pretraining.
+Early variants such as UP-DETR introduced unsupervised pretraining for Transformers, showing that self-supervised representation learning could improve downstream detection accuracy.
+Subsequent works such as Group DETR v2 and Co-DETR further advanced DETR performance by exploring encoder-decoder pretraining strategies and hybrid assignments, achieving strong results on benchmarks such as MS COCO.
+
+Lightweight or real-time DETR models have also emerged, including:
+
+\begin{itemize}
+    \item RT-DETR, which allows flexible inference speed by varying decoder layers without retraining,
+    \item LW-DETR, which improves efficiency using pretraining strategies,
+    \item Salience DETR, which introduces salience-guided supervision to accelerate and stabilize training.
+\end{itemize}
+
+
+Despite these advances, the PK-YOLO paper points out that DETR-based models have not been sufficiently explored for brain tumor detection in MRI images, and prior DETR variants struggle to match YOLO-based detectors in medical settings due to computation cost and limited domain adaptation.
+
+\subsection{Brain Tumor Detection}
+While YOLO models dominate natural image detection tasks, their application to medical imaging, especially brain tumors, remains relatively limited.
+
+Prior work includes:
+
+\begin{itemize}
+    \item RCS-YOLO, which integrates region concentration modules to improve localization of tumors,
+    \item BGF-YOLO, which enhances YOLOv8 using multiscale attentional feature fusion,
+    \item Traditional YOLO variants such as YOLOv5, YOLOv8, and YOLOv9 have been used but still face challenges detecting small tumors and generalizing across multiplanar MRI slices.
+\end{itemize}
+
+
+These YOLO-based approaches generally perform well in speed and accuracy, but lack mechanisms to integrate domain-specific pretrained knowledge, especially for complex medical imagery.
+
+\subsection{Multiplanar MRI Analysis}
+Multiplanar analysis (axial, coronal, sagittal slices) is critical in medical imaging because tumors may appear differently across orientations.
+
+Previous works include:
+\begin{itemize}
+    \item Piantadosi et al. used ensembles of 2D CNNs for MRI tissue segmentation,
+    \item MPS-FFA model introduced multiplane and multiscale feature fusion for Alzheimer’s disease classification,
+    \item Studies evaluating object detection on multiplanar MRI slices (e.g., Barbato \& Menga with YOLOv5m) reported low mean Average Precision, highlighting the difficulty of multiplane data.
+\end{itemize}
+
+
+Challenges identified in previous studies:
+
+\begin{itemize}
+    \item Significant variation in lesion size and position across planes,
+    \item Increased number of small lesions due to slice orientation,
+    \item Difficulty training a single model to perform well on all three anatomical planes.
+\end{itemize}
+
+
+\section{Method}
+here
+
+\section{Experiments}
+here
+
+\section{Conclusion}
+
+
+\bibliographystyle{abbrv}
+\bibliography{bibfile}
+\bibliographystyle{abbrv}
+
+\end{document}

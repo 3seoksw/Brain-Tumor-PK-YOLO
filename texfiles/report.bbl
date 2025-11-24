@@ -1,0 +1,22 @@
+\begin{thebibliography}{1}
+
+\bibitem{asif2025advancements}
+S.~Asif, Y.~Wenhui, S.~ur~Rehman, Q.~ul~ain, K.~Amjad, Y.~Yueyang, S.~Jinhai, and M.~Awais.
+\newblock Advancements and prospects of machine learning in medical diagnostics: unveiling the future of diagnostic precision.
+\newblock {\em Archives of Computational Methods in Engineering}, 32(2):853--883, 2025.
+
+\bibitem{kang2025pk}
+M.~Kang, F.~F. Ting, R.~C.-W. Phan, and C.-M. Ting.
+\newblock Pk-yolo: Pretrained knowledge guided yolo for brain tumor detection in multiplanar mri slices.
+\newblock In {\em 2025 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)}, pages 3732--3741. IEEE, 2025.
+
+\bibitem{rasool2025brain}
+N.~Rasool and J.~I. Bhat.
+\newblock Brain tumour detection using machine and deep learning: a systematic review.
+\newblock {\em Multimedia tools and applications}, 84(13):11551--11604, 2025.
+
+\bibitem{yolo}
+J.~Redmon, S.~Divvala, R.~Girshick, and A.~Farhadi.
+\newblock You only look once: Unified, real-time object detection, 2016.
+
+\end{thebibliography}

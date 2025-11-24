@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from spark.repvit import RepViT
+from repvit.repvit import RepViT
 
 
 def autopad(k, p=None, d=1):  # kernel, padding, dilation

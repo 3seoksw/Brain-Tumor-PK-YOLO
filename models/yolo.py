@@ -2,6 +2,8 @@ import argparse
 import os
 import platform
 import sys
+import torch
+import torch.nn as nn
 from copy import deepcopy
 from pathlib import Path
 
@@ -1118,3 +1120,15 @@ if __name__ == "__main__":
 
     else:  # report fused model summary
         model.fuse()
+
+    x = torch.rand(1, 3, 256, 256)
+    y = model(x)  # tuple(list[tensor, tensor], list[list[t, t, t], list[t, t, t]])
+    n_backbone = len(model.yaml["backbone"])
+
+    print("backbone layers: 0 ..", n_backbone - 1)
+    print("head/neck layers:", n_backbone, "..", len(model.model) - 1)
+    # t1 = torch.rand(1, 3, 640, 640)
+    # t1 = torch.rand(1, 3, 256, 256)
+    # x = model.model(t1)
+    # for i in range(len(x)):
+    #     print(x[i].shape)

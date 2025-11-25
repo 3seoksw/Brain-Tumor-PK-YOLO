@@ -2,6 +2,7 @@ import torch.nn as nn
 import numpy as np
 import itertools
 
+
 def _make_divisible(v, divisor, min_value=None):
     """
     This function is taken from the original tf repo.
@@ -21,61 +22,87 @@ def _make_divisible(v, divisor, min_value=None):
         new_v += divisor
     return new_v
 
+
 from timm.models.layers import SqueezeExcite
 
 import torch
 
+
 class Conv2d_BN(torch.nn.Sequential):
-    def __init__(self, a, b, ks=1, stride=1, pad=0, dilation=1,
-                 groups=1, bn_weight_init=1, resolution=-10000):
+    def __init__(
+        self,
+        a,
+        b,
+        ks=1,
+        stride=1,
+        pad=0,
+        dilation=1,
+        groups=1,
+        bn_weight_init=1,
+        resolution=-10000,
+    ):
         super().__init__()
-        self.add_module('c', torch.nn.Conv2d(
-            a, b, ks, stride, pad, dilation, groups, bias=False))
-        self.add_module('bn', torch.nn.BatchNorm2d(b))
+        self.add_module(
+            "c", torch.nn.Conv2d(a, b, ks, stride, pad, dilation, groups, bias=False)
+        )
+        self.add_module("bn", torch.nn.BatchNorm2d(b))
         torch.nn.init.constant_(self.bn.weight, bn_weight_init)
         torch.nn.init.constant_(self.bn.bias, 0)
 
     @torch.no_grad()
     def fuse(self):
         c, bn = self._modules.values()
-        w = bn.weight / (bn.running_var + bn.eps)**0.5
+        w = bn.weight / (bn.running_var + bn.eps) ** 0.5
         w = c.weight * w[:, None, None, None]
-        b = bn.bias - bn.running_mean * bn.weight / \
-            (bn.running_var + bn.eps)**0.5
-        m = torch.nn.Conv2d(w.size(1) * self.c.groups, w.size(
-            0), w.shape[2:], stride=self.c.stride, padding=self.c.padding, dilation=self.c.dilation, groups=self.c.groups,
-            device=c.weight.device)
+        b = bn.bias - bn.running_mean * bn.weight / (bn.running_var + bn.eps) ** 0.5
+        m = torch.nn.Conv2d(
+            w.size(1) * self.c.groups,
+            w.size(0),
+            w.shape[2:],
+            stride=self.c.stride,
+            padding=self.c.padding,
+            dilation=self.c.dilation,
+            groups=self.c.groups,
+            device=c.weight.device,
+        )
         m.weight.data.copy_(w)
         m.bias.data.copy_(b)
         return m
 
+
 class Residual(torch.nn.Module):
-    def __init__(self, m, drop=0.):
+    def __init__(self, m, drop=0.0):
         super().__init__()
         self.m = m
         self.drop = drop
 
     def forward(self, x):
         if self.training and self.drop > 0:
-            return x + self.m(x) * torch.rand(x.size(0), 1, 1, 1,
-                                              device=x.device).ge_(self.drop).div(1 - self.drop).detach()
+            return (
+                x
+                + self.m(x)
+                * torch.rand(x.size(0), 1, 1, 1, device=x.device)
+                .ge_(self.drop)
+                .div(1 - self.drop)
+                .detach()
+            )
         else:
             return x + self.m(x)
-    
+
     @torch.no_grad()
     def fuse(self):
         if isinstance(self.m, Conv2d_BN):
             m = self.m.fuse()
-            assert(m.groups == m.in_channels)
+            assert m.groups == m.in_channels
             identity = torch.ones(m.weight.shape[0], m.weight.shape[1], 1, 1)
-            identity = torch.nn.functional.pad(identity, [1,1,1,1])
+            identity = torch.nn.functional.pad(identity, [1, 1, 1, 1])
             m.weight += identity.to(m.weight.device)
             return m
         elif isinstance(self.m, torch.nn.Conv2d):
             m = self.m
-            assert(m.groups != m.in_channels)
+            assert m.groups != m.in_channels
             identity = torch.ones(m.weight.shape[0], m.weight.shape[1], 1, 1)
-            identity = torch.nn.functional.pad(identity, [1,1,1,1])
+            identity = torch.nn.functional.pad(identity, [1, 1, 1, 1])
             m.weight += identity.to(m.weight.device)
             return m
         else:
@@ -89,23 +116,26 @@ class RepVGGDW(torch.nn.Module):
         self.conv1 = torch.nn.Conv2d(ed, ed, 1, 1, 0, groups=ed)
         self.dim = ed
         self.bn = torch.nn.BatchNorm2d(ed)
-    
+
     def forward(self, x):
         return self.bn((self.conv(x) + self.conv1(x)) + x)
-    
+
     @torch.no_grad()
     def fuse(self):
         conv = self.conv.fuse()
         conv1 = self.conv1
-        
+
         conv_w = conv.weight
         conv_b = conv.bias
         conv1_w = conv1.weight
         conv1_b = conv1.bias
-        
-        conv1_w = torch.nn.functional.pad(conv1_w, [1,1,1,1])
 
-        identity = torch.nn.functional.pad(torch.ones(conv1_w.shape[0], conv1_w.shape[1], 1, 1, device=conv1_w.device), [1,1,1,1])
+        conv1_w = torch.nn.functional.pad(conv1_w, [1, 1, 1, 1])
+
+        identity = torch.nn.functional.pad(
+            torch.ones(conv1_w.shape[0], conv1_w.shape[1], 1, 1, device=conv1_w.device),
+            [1, 1, 1, 1],
+        )
 
         final_conv_w = conv_w + conv1_w + identity
         final_conv_b = conv_b + conv1_b
@@ -114,10 +144,14 @@ class RepVGGDW(torch.nn.Module):
         conv.bias.data.copy_(final_conv_b)
 
         bn = self.bn
-        w = bn.weight / (bn.running_var + bn.eps)**0.5
+        w = bn.weight / (bn.running_var + bn.eps) ** 0.5
         w = conv.weight * w[:, None, None, None]
-        b = bn.bias + (conv.bias - bn.running_mean) * bn.weight / \
-            (bn.running_var + bn.eps)**0.5
+        b = (
+            bn.bias
+            + (conv.bias - bn.running_mean)
+            * bn.weight
+            / (bn.running_var + bn.eps) ** 0.5
+        )
         conv.weight.data.copy_(w)
         conv.bias.data.copy_(b)
         return conv
@@ -129,44 +163,53 @@ class RepViTBlock(nn.Module):
         assert stride in [1, 2]
 
         self.identity = stride == 1 and inp == oup
-        assert(hidden_dim == 2 * inp)
+        assert hidden_dim == 2 * inp
 
         if stride == 2:
             self.token_mixer = nn.Sequential(
-                Conv2d_BN(inp, inp, kernel_size, stride, (kernel_size - 1) // 2, groups=inp),
+                Conv2d_BN(
+                    inp, inp, kernel_size, stride, (kernel_size - 1) // 2, groups=inp
+                ),
                 SqueezeExcite(inp, 0.25) if use_se else nn.Identity(),
-                Conv2d_BN(inp, oup, ks=1, stride=1, pad=0)
+                Conv2d_BN(inp, oup, ks=1, stride=1, pad=0),
             )
-            self.channel_mixer = Residual(nn.Sequential(
+            self.channel_mixer = Residual(
+                nn.Sequential(
                     # pw
                     Conv2d_BN(oup, 2 * oup, 1, 1, 0),
                     nn.GELU() if use_hs else nn.GELU(),
                     # pw-linear
                     Conv2d_BN(2 * oup, oup, 1, 1, 0, bn_weight_init=0),
-                ))
+                )
+            )
         else:
-            assert(self.identity)
+            assert self.identity
             self.token_mixer = nn.Sequential(
                 RepVGGDW(inp),
                 SqueezeExcite(inp, 0.25) if use_se else nn.Identity(),
             )
-            self.channel_mixer = Residual(nn.Sequential(
+            self.channel_mixer = Residual(
+                nn.Sequential(
                     # pw
                     Conv2d_BN(inp, hidden_dim, 1, 1, 0),
                     nn.GELU() if use_hs else nn.GELU(),
                     # pw-linear
                     Conv2d_BN(hidden_dim, oup, 1, 1, 0, bn_weight_init=0),
-                ))
+                )
+            )
 
     def forward(self, x):
         return self.channel_mixer(self.token_mixer(x))
 
+
 from timm.models.vision_transformer import trunc_normal_
+
+
 class BN_Linear(torch.nn.Sequential):
     def __init__(self, a, b, bias=True, std=0.02):
         super().__init__()
-        self.add_module('bn', torch.nn.BatchNorm1d(a))
-        self.add_module('l', torch.nn.Linear(a, b, bias=bias))
+        self.add_module("bn", torch.nn.BatchNorm1d(a))
+        self.add_module("l", torch.nn.Linear(a, b, bias=bias))
         trunc_normal_(self.l.weight, std=std)
         if bias:
             torch.nn.init.constant_(self.l.bias, 0)
@@ -174,9 +217,11 @@ class BN_Linear(torch.nn.Sequential):
     @torch.no_grad()
     def fuse(self):
         bn, l = self._modules.values()
-        w = bn.weight / (bn.running_var + bn.eps)**0.5
-        b = bn.bias - self.bn.running_mean * \
-            self.bn.weight / (bn.running_var + bn.eps)**0.5
+        w = bn.weight / (bn.running_var + bn.eps) ** 0.5
+        b = (
+            bn.bias
+            - self.bn.running_mean * self.bn.weight / (bn.running_var + bn.eps) ** 0.5
+        )
         w = l.weight * w[None, :]
         if l.bias is None:
             b = b @ self.l.weight.T
@@ -187,17 +232,24 @@ class BN_Linear(torch.nn.Sequential):
         m.bias.data.copy_(b)
         return m
 
+
 class RepViT(nn.Module):
-    def __init__(self, cfgs, distillation=False, pretrained=None, init_cfg=None, out_indices=[]):
+    def __init__(
+        self, cfgs, distillation=False, pretrained=None, init_cfg=None, out_indices=[]
+    ):
         super(RepViT, self).__init__()
         # setting of inverted residual blocks
         self.cfgs = cfgs
 
         # building first layer
         input_channel = self.cfgs[0][2]
-        patch_embed = torch.nn.Sequential(Conv2d_BN(3, input_channel // 2, 3, 2, 1), torch.nn.GELU() )
+        patch_embed = torch.nn.Sequential(
+            Conv2d_BN(3, input_channel // 2, 3, 2, 1), torch.nn.GELU()
+        )
         layers = [patch_embed]
-        patch_embed2 = torch.nn.Sequential(Conv2d_BN(input_channel // 2, input_channel, 3, 2, 1), torch.nn.GELU())
+        patch_embed2 = torch.nn.Sequential(
+            Conv2d_BN(input_channel // 2, input_channel, 3, 2, 1), torch.nn.GELU()
+        )
         layers.append(patch_embed2)
 
         # building inverted residual blocks
@@ -205,7 +257,9 @@ class RepViT(nn.Module):
         for k, t, c, use_se, use_hs, s in self.cfgs:
             output_channel = _make_divisible(c, 8)
             exp_size = _make_divisible(input_channel * t, 8)
-            layers.append(block(input_channel, exp_size, output_channel, k, s, use_se, use_hs))
+            layers.append(
+                block(input_channel, exp_size, output_channel, k, s, use_se, use_hs)
+            )
             input_channel = output_channel
         self.features = nn.ModuleList(layers)
         #
@@ -213,10 +267,11 @@ class RepViT(nn.Module):
         # assert(self.init_cfg is not None)
         self.out_indices = out_indices
 
-        #self = torch.nn.SyncBatchNorm.convert_sync_batchnorm(self)
+        # self = torch.nn.SyncBatchNorm.convert_sync_batchnorm(self)
         self.train()
-        self.out_indices=[0,5,11, 37, 42]
+        self.out_indices = [0, 5, 11, 37, 42]
         #               320 160 80  40    20
+
     def train(self, mode=True):
         """Convert the model into training mode while keep layers freezed."""
         super(RepViT, self).train(mode)
@@ -225,216 +280,260 @@ class RepViT(nn.Module):
         outs = []
         for i, f in enumerate(self.features):
             x = f(x)
-            #print(x.shape)
+            # print(x.shape)
             if i in self.out_indices:
                 outs.append(x)
-                #print(x.shape)
-       # assert(len(outs) == 4)
+                # print(x.shape)
+        # assert(len(outs) == 4)
+        print(f"repvit: {len(outs)}")
         return outs
 
+
 from timm.models import register_model
-def repvit_m1_1(pretrained=False, num_classes = 1000, distillation=False, init_cfg=None, out_indices=[], **kwargs):
+
+
+def repvit_m1_1(
+    pretrained=False,
+    num_classes=1000,
+    distillation=False,
+    init_cfg=None,
+    out_indices=[],
+    **kwargs,
+):
     """
     Constructs a MobileNetV3-Large model
     """
     cfgs = [
-        # k, t, c, SE, HS, s 
-        [3,   2,  64, 1, 0, 1],
-        [3,   2,  64, 0, 0, 1],
-        [3,   2,  64, 0, 0, 1],
-        [3,   2,  128, 0, 0, 2],
-        [3,   2,  128, 1, 0, 1],
-        [3,   2,  128, 0, 0, 1],
-        [3,   2,  128, 0, 0, 1],
-        [3,   2,  256, 0, 1, 2],
-        [3,   2,  256, 1, 1, 1],
-        [3,   2,  256, 0, 1, 1],
-        [3,   2,  256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 512, 0, 1, 2],
-        [3,   2, 512, 1, 1, 1],
-        [3,   2, 512, 0, 1, 1]
+        # k, t, c, SE, HS, s
+        [3, 2, 64, 1, 0, 1],
+        [3, 2, 64, 0, 0, 1],
+        [3, 2, 64, 0, 0, 1],
+        [3, 2, 128, 0, 0, 2],
+        [3, 2, 128, 1, 0, 1],
+        [3, 2, 128, 0, 0, 1],
+        [3, 2, 128, 0, 0, 1],
+        [3, 2, 256, 0, 1, 2],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 512, 0, 1, 2],
+        [3, 2, 512, 1, 1, 1],
+        [3, 2, 512, 0, 1, 1],
     ]
-    return RepViT(cfgs, init_cfg=init_cfg, pretrained=pretrained, distillation=distillation, out_indices=out_indices)
+    return RepViT(
+        cfgs,
+        init_cfg=init_cfg,
+        pretrained=pretrained,
+        distillation=distillation,
+        out_indices=out_indices,
+    )
 
-def repvit_m1_5(pretrained=False, num_classes = 1000, distillation=False, init_cfg=None, out_indices=[], **kwargs):
+
+def repvit_m1_5(
+    pretrained=False,
+    num_classes=1000,
+    distillation=False,
+    init_cfg=None,
+    out_indices=[],
+    **kwargs,
+):
     """
     Constructs a MobileNetV3-Large model
     """
     cfgs = [
-        # k, t, c, SE, HS, s 
-        [3,   2,  64, 1, 0, 1],
-        [3,   2,  64, 0, 0, 1],
-        [3,   2,  64, 1, 0, 1],
-        [3,   2,  64, 0, 0, 1],
-        [3,   2,  64, 0, 0, 1],
-        [3,   2,  128, 0, 0, 2],
-        [3,   2,  128, 1, 0, 1],
-        [3,   2,  128, 0, 0, 1],
-        [3,   2,  128, 1, 0, 1],
-        [3,   2,  128, 0, 0, 1],
-        [3,   2,  128, 0, 0, 1],
-        [3,   2,  256, 0, 1, 2],
-        [3,   2,  256, 1, 1, 1],
-        [3,   2,  256, 0, 1, 1],
-        [3,   2,  256, 1, 1, 1],
-        [3,   2,  256, 0, 1, 1],
-        [3,   2,  256, 1, 1, 1],
-        [3,   2,  256, 0, 1, 1],
-        [3,   2,  256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 1, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 256, 0, 1, 1],
-        [3,   2, 512, 0, 1, 2],
-        [3,   2, 512, 1, 1, 1],
-        [3,   2, 512, 0, 1, 1],
-        [3,   2, 512, 1, 1, 1],
-        [3,   2, 512, 0, 1, 1]
+        # k, t, c, SE, HS, s
+        [3, 2, 64, 1, 0, 1],
+        [3, 2, 64, 0, 0, 1],
+        [3, 2, 64, 1, 0, 1],
+        [3, 2, 64, 0, 0, 1],
+        [3, 2, 64, 0, 0, 1],
+        [3, 2, 128, 0, 0, 2],
+        [3, 2, 128, 1, 0, 1],
+        [3, 2, 128, 0, 0, 1],
+        [3, 2, 128, 1, 0, 1],
+        [3, 2, 128, 0, 0, 1],
+        [3, 2, 128, 0, 0, 1],
+        [3, 2, 256, 0, 1, 2],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 1, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 256, 0, 1, 1],
+        [3, 2, 512, 0, 1, 2],
+        [3, 2, 512, 1, 1, 1],
+        [3, 2, 512, 0, 1, 1],
+        [3, 2, 512, 1, 1, 1],
+        [3, 2, 512, 0, 1, 1],
     ]
-    return RepViT(cfgs, init_cfg=init_cfg, pretrained=pretrained, distillation=distillation, out_indices=out_indices)
+    return RepViT(
+        cfgs,
+        init_cfg=init_cfg,
+        pretrained=pretrained,
+        distillation=distillation,
+        out_indices=out_indices,
+    )
 
 
-def repvit_m2_3(pretrained=False, num_classes = 1000, distillation=False, init_cfg=None, out_indices=[], **kwargs):
+def repvit_m2_3(
+    pretrained=False,
+    num_classes=1000,
+    distillation=False,
+    init_cfg=None,
+    out_indices=[],
+    **kwargs,
+):
     """
     Constructs a MobileNetV3-Large model
     """
     cfgs = [
-        # k, t, c, SE, HS, s 
-        [3,   2,  80, 1, 0, 1],
-        [3,   2,  80, 0, 0, 1],
-        [3,   2,  80, 1, 0, 1],
-        [3,   2,  80, 0, 0, 1],
-        [3,   2,  80, 1, 0, 1],
-        [3,   2,  80, 0, 0, 1],
-        [3,   2,  80, 0, 0, 1],
-        [3,   2,  160, 0, 0, 2],
-        [3,   2,  160, 1, 0, 1],
-        [3,   2,  160, 0, 0, 1],
-        [3,   2,  160, 1, 0, 1],
-        [3,   2,  160, 0, 0, 1],
-        [3,   2,  160, 1, 0, 1],
-        [3,   2,  160, 0, 0, 1],
-        [3,   2,  160, 0, 0, 1],
-        [3,   2,  320, 0, 1, 2],
-        [3,   2,  320, 1, 1, 1],
-        [3,   2,  320, 0, 1, 1],
-        [3,   2,  320, 1, 1, 1],
-        [3,   2,  320, 0, 1, 1],
-        [3,   2,  320, 1, 1, 1],
-        [3,   2,  320, 0, 1, 1],
-        [3,   2,  320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 1, 1, 1],
-        [3,   2, 320, 0, 1, 1],
+        # k, t, c, SE, HS, s
+        [3, 2, 80, 1, 0, 1],
+        [3, 2, 80, 0, 0, 1],
+        [3, 2, 80, 1, 0, 1],
+        [3, 2, 80, 0, 0, 1],
+        [3, 2, 80, 1, 0, 1],
+        [3, 2, 80, 0, 0, 1],
+        [3, 2, 80, 0, 0, 1],
+        [3, 2, 160, 0, 0, 2],
+        [3, 2, 160, 1, 0, 1],
+        [3, 2, 160, 0, 0, 1],
+        [3, 2, 160, 1, 0, 1],
+        [3, 2, 160, 0, 0, 1],
+        [3, 2, 160, 1, 0, 1],
+        [3, 2, 160, 0, 0, 1],
+        [3, 2, 160, 0, 0, 1],
+        [3, 2, 320, 0, 1, 2],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 320, 1, 1, 1],
+        [3, 2, 320, 0, 1, 1],
         # [3,   2, 320, 1, 1, 1],
         # [3,   2, 320, 0, 1, 1],
-        [3,   2, 320, 0, 1, 1],
-        [3,   2, 640, 0, 1, 2],
-        [3,   2, 640, 1, 1, 1],
-        [3,   2, 640, 0, 1, 1],
+        [3, 2, 320, 0, 1, 1],
+        [3, 2, 640, 0, 1, 2],
+        [3, 2, 640, 1, 1, 1],
+        [3, 2, 640, 0, 1, 1],
         # [3,   2, 640, 1, 1, 1],
         # [3,   2, 640, 0, 1, 1]
-    ]    
-    return RepViT(cfgs, init_cfg=init_cfg, pretrained=pretrained, distillation=distillation, out_indices=out_indices)
-
-
+    ]
+    return RepViT(
+        cfgs,
+        init_cfg=init_cfg,
+        pretrained=pretrained,
+        distillation=distillation,
+        out_indices=out_indices,
+    )
 
 
 cfgs = [
-        # k, t, c, SE, HS, s
-        [3,   2,  64*2, 1, 0, 1],
-        [3,   2,  64*2, 0, 0, 1],
-        [3,   2,  64*2, 1, 0, 1],
-        [3,   2,  64*2, 0, 0, 1],
-        [3,   2,  64*2, 0, 0, 1],
-        [3,   2,  128*2, 0, 0, 2],
-        [3,   2,  128*2, 1, 0, 1],
-        [3,   2,  128*2, 0, 0, 1],
-        [3,   2,  128*2, 1, 0, 1],
-        [3,   2,  128*2, 0, 0, 1],
-        [3,   2,  128*2, 0, 0, 1],
-        [3,   2,  256*2, 0, 1, 2],
-        [3,   2,  256*2, 1, 1, 1],
-        [3,   2,  256*2, 0, 1, 1],
-        [3,   2,  256*2, 1, 1, 1],
-        [3,   2,  256*2, 0, 1, 1],
-        [3,   2,  256*2, 1, 1, 1],
-        [3,   2,  256*2, 0, 1, 1],
-        [3,   2,  256*2, 1, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 256*2, 1, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 256*2, 1, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 256*2, 1, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 256*2, 1, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 256*2, 1, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 256*2, 1, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 256*2, 1, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 256*2, 1, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 256*2, 0, 1, 1],
-        [3,   2, 512*2, 0, 1, 2],
-        [3,   2, 512*2, 1, 1, 1],
-        [3,   2, 512*2, 0, 1, 1],
-        [3,   2, 512*2, 1, 1, 1],
-        [3,   2, 512*2, 0, 1, 1]
-    ]
+    # k, t, c, SE, HS, s
+    [3, 2, 64 * 2, 1, 0, 1],
+    [3, 2, 64 * 2, 0, 0, 1],
+    [3, 2, 64 * 2, 1, 0, 1],
+    [3, 2, 64 * 2, 0, 0, 1],
+    [3, 2, 64 * 2, 0, 0, 1],
+    [3, 2, 128 * 2, 0, 0, 2],
+    [3, 2, 128 * 2, 1, 0, 1],
+    [3, 2, 128 * 2, 0, 0, 1],
+    [3, 2, 128 * 2, 1, 0, 1],
+    [3, 2, 128 * 2, 0, 0, 1],
+    [3, 2, 128 * 2, 0, 0, 1],
+    [3, 2, 256 * 2, 0, 1, 2],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 1, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 256 * 2, 0, 1, 1],
+    [3, 2, 512 * 2, 0, 1, 2],
+    [3, 2, 512 * 2, 1, 1, 1],
+    [3, 2, 512 * 2, 0, 1, 1],
+    [3, 2, 512 * 2, 1, 1, 1],
+    [3, 2, 512 * 2, 0, 1, 1],
+]
 
-if __name__ =="__main__":
-    model  = RepViT(cfgs )
-    t1 = torch.rand(1,3,640,640)
+if __name__ == "__main__":
+    model = RepViT(cfgs)
+    t1 = torch.rand(1, 3, 640, 640)
     x = model(t1)
+    for i in range(len(x)):
+        print(x[i].shape)

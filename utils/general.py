@@ -663,7 +663,6 @@ def check_dataset(data, autodownload=True):
             else:  # python script
                 # r = exec(s, {"yaml": data})  # return None
                 r = 1
-                print("🐒")
             dt = f"({round(time.time() - t, 1)}s)"
             s = (
                 f"success ✅ {dt}, saved to {colorstr('bold', DATASETS_DIR)}"

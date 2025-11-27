@@ -284,6 +284,17 @@ def init_seeds(seed=0, deterministic=False):
         os.environ["PYTHONHASHSEED"] = str(seed)
 
 
+def strip_prefix_from_state_dict(weight_dict, prefix="mlist.1."):
+    new_dict = {}
+    for k, v in weight_dict.items():
+        if k.startswith(prefix):
+            new_k = k[len(prefix) :]  # drop "mlist."
+        else:
+            new_k = k
+        new_dict[new_k] = v
+    return new_dict
+
+
 def intersect_dicts(da, db, exclude=()):
     # Dictionary intersection of matching keys and shapes, omitting 'exclude' keys, using da values
     return {

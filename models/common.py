@@ -374,10 +374,11 @@ class Router(nn.Module):
     def __init__(self):
         super().__init__()
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.num_planes = 3
 
         planes = ["axial", "coronal", "sagittal"]
         self.module_list = nn.ModuleList()
-        for i in range(3):
+        for i in range(self.num_planes):
             backbone = Backbone()
             weight_path = f"data/weights/{planes[i]}.pth"
             print(f"Weight {weight_path} loading")
@@ -390,7 +391,7 @@ class Router(nn.Module):
             self.module_list.append(backbone)
 
         # three planes, five outputs
-        self.weight = nn.Parameter(torch.ones(3, 5))
+        self.weight = nn.Parameter(torch.ones(self.num_planes, 5))
 
     def forward(self, x):
         axial_out = self.module_list[0](x)
@@ -404,9 +405,9 @@ class Router(nn.Module):
 
             a = axial_out[s]
             c = coronal_out[s]
-            g = sagittal_out[s]
+            s = sagittal_out[s]
 
-            fused = wa * a + wc * c + ws * g
+            fused = wa * a + wc * c + ws * s
             outs.append(fused)
         return outs
 

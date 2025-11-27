@@ -169,9 +169,8 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
         else data_dict["names"]
     )  # class names
     # is_coco = isinstance(val_path, str) and val_path.endswith('coco/val2017.txt')  # COCO dataset
-    is_coco = isinstance(val_path, str) and val_path.endswith(
-        "val2017.txt"
-    )  # COCO dataset
+    # COCO dataset
+    is_coco = isinstance(val_path, str) and val_path.endswith("val2017.txt")
 
     # Model
     check_suffix(weights, ".pt")  # check weights
@@ -182,20 +181,17 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
         ckpt = torch.load(
             weights, map_location="cpu"
         )  # load checkpoint to CPU to avoid CUDA memory leak
-        model = Model(
-            cfg or ckpt["model"].yaml, ch=3, nc=nc, anchors=hyp.get("anchors")
-        ).to(
+        model = Model(cfg or ckpt.yaml, ch=3, nc=nc, anchors=hyp.get("anchors")).to(
             device
-        )  # create
-        exclude = (
-            ["anchor"] if (cfg or hyp.get("anchors")) and not resume else []
-        )  # exclude keys
-        csd = ckpt["model"].float().state_dict()  # checkpoint state_dict as FP32
+        )
+
+        exclude = ["anchor"] if (cfg or hyp.get("anchors")) and not resume else []
+        csd = ckpt  # checkpoint state_dict as FP32
         csd = intersect_dicts(csd, model.state_dict(), exclude=exclude)  # intersect
         model.load_state_dict(csd, strict=False)  # load
         LOGGER.info(
             f"Transferred {len(csd)}/{len(model.state_dict())} items from {weights}"
-        )  # report
+        )
     else:
         model = Model(cfg, ch=3, nc=nc, anchors=hyp.get("anchors")).to(device)  # create
     amp = check_amp(model)  # check AMP
@@ -205,8 +201,8 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
         f"model.{x}." for x in (freeze if len(freeze) > 1 else range(freeze[0]))
     ]  # layers to freeze
     for k, v in model.named_parameters():
-        # v.requires_grad = True  # train all layers TODO: uncomment this line as in master
-        # v.register_hook(lambda x: torch.nan_to_num(x))  # NaN to 0 (commented for erratic training results)
+        # v.requires_grad = True  # train all layers     TODO: uncomment this line as in master
+        # v.register_hook(lambda x: torch.nan_to_num(x)) # NaN to 0 (commented for erratic training results)
         if any(x in k for x in freeze):
             LOGGER.info(f"freezing {k}")
             v.requires_grad = False
@@ -453,7 +449,7 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
                     )
 
             # Forward
-            with torch.cuda.amp.autocast(amp):
+            with torch.amp.autocast(amp):
                 pred = model(imgs)  # forward
                 loss, loss_items = compute_loss(
                     pred, targets.to(device)

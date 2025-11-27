@@ -22,7 +22,6 @@ from IPython.display import display
 from PIL import Image
 from torch.cuda import amp
 
-from models.router import Router
 from models.repvit import RepViT
 from utils import TryExcept
 from utils.dataloaders import exif_transpose, letterbox
@@ -367,6 +366,46 @@ class RepNBottleneck(nn.Module):
 
     def forward(self, x):
         return x + self.cv2(self.cv1(x)) if self.add else self.cv2(self.cv1(x))
+
+
+class Router(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.module_list = nn.ModuleList()
+        for _ in range(3):
+            backbone = Backbone()
+            self.module_list.append(backbone)
+
+        # three planes, five outputs
+        self.weight = nn.Parameter(torch.ones(3, 5))
+
+    def forward(self, x):
+        axial_out = self.module_list[0](x)
+        coronal_out = self.module_list[1](x)
+        sagittal_out = self.module_list[2](x)
+        outs = []
+        for s in range(5):
+            wa = self.weight[0, s]
+            wc = self.weight[1, s]
+            ws = self.weight[2, s]
+
+            a = axial_out[s]
+            c = coronal_out[s]
+            g = sagittal_out[s]
+
+            fused = wa * a + wc * c + ws * g
+            outs.append(fused)
+        return outs
+
+
+class BackboneRouter(nn.Module):
+    def __init__(self):
+        super(BackboneRouter, self).__init__()
+        self.router = Router()
+
+    def forward(self, x):
+        return self.router(x)
 
 
 class Backbone(nn.Module):

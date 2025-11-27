@@ -449,7 +449,7 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
                     )
 
             # Forward
-            with torch.amp.autocast(amp):
+            with torch.amp.autocast("cuda"):
                 pred = model(imgs)  # forward
                 loss, loss_items = compute_loss(
                     pred, targets.to(device)
@@ -643,7 +643,7 @@ def parse_opt(known=False):
         "--img",
         "--img-size",
         type=int,
-        default=640,
+        default=320,
         help="train, val image size (pixels)",
     )
     parser.add_argument("--rect", action="store_true", help="rectangular training")

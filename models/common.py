@@ -29,6 +29,8 @@ from utils.general import (
     LOGGER,
     ROOT,
     Profile,
+    strip_prefix_from_state_dict,
+    intersect_dicts,
     check_requirements,
     check_suffix,
     check_version,
@@ -371,10 +373,20 @@ class RepNBottleneck(nn.Module):
 class Router(nn.Module):
     def __init__(self):
         super().__init__()
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
+        planes = ["axial", "coronal", "sagittal"]
         self.module_list = nn.ModuleList()
-        for _ in range(3):
+        for i in range(3):
             backbone = Backbone()
+            weight_path = f"data/weights/{planes[i]}.pth"
+            print(f"Weight {weight_path} loading")
+            weight = torch.load(weight_path, map_location=self.device)
+            new_weight = strip_prefix_from_state_dict(weight)
+            model_dict = backbone.state_dict()
+            intersect = intersect_dicts(new_weight, model_dict)
+            print(f"Transferred: {len(intersect)} / {len(model_dict)}")
+            backbone.load_state_dict(new_weight, strict=False)
             self.module_list.append(backbone)
 
         # three planes, five outputs

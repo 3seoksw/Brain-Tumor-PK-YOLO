@@ -637,9 +637,7 @@ def check_dataset(data, autodownload=True):
     # Parse yaml
     train, val, test, s = (data.get(x) for x in ("train", "val", "test", "download"))
     if val:
-        val = [
-            Path(x).resolve() for x in (val if isinstance(val, list) else [val])
-        ]  # val path
+        # val = [Path(x).resolve() for x in (val if isinstance(val, list) else [val])]
         # if not all(x.exists() for x in val):
         if not os.path.exists(str(val)):
             LOGGER.info(

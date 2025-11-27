@@ -85,7 +85,8 @@ def check_pil_font(font=FONT, size=10):
     except Exception:  # download if missing
         try:
             check_font(font)
-            return ImageFont.truetype(str(font), size)
+            return ImageFont.load_default()
+            # return ImageFont.truetype(str(font), size)
         except TypeError:
             check_requirements(
                 "Pillow>=8.4.0"

@@ -285,7 +285,6 @@ class RepViT(nn.Module):
                 outs.append(x)
                 # print(x.shape)
         # assert(len(outs) == 4)
-        print(f"repvit: {len(outs)}")
         return outs
 
 

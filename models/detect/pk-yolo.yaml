@@ -14,7 +14,7 @@ anchors: 3
 backbone: [
     [-1, 1, Silence, []],
 
-    [-1, 1, Backbone, []],
+    [-1, 1, BackboneRouter, []],
     # conv down
     [1, 1, Down0, [64]], #2 320   1
     [1, 1, Down1, [128]], # 3  160   3

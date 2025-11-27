@@ -2,6 +2,8 @@ import argparse
 import os
 import platform
 import sys
+import torch
+import torch.nn as nn
 from copy import deepcopy
 from pathlib import Path
 
@@ -861,9 +863,8 @@ class DetectionModel(BaseModel):
     def forward(self, x, augment=False, profile=False, visualize=False):
         if augment:
             return self._forward_augment(x)  # augmented inference, None
-        return self._forward_once(
-            x, profile, visualize
-        )  # single-scale inference, train
+        # single-scale inference, train
+        return self._forward_once(x, profile, visualize)
 
     def _forward_augment(self, x):
         img_size = x.shape[-2:]  # height, width
@@ -981,9 +982,8 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
     no = na * (nc + 5)  # number of outputs = anchors * (classes + 5)
 
     layers, save, c2 = [], [], ch[-1]  # layers, savelist, ch out
-    for i, (f, n, m, args) in enumerate(
-        d["backbone"] + d["head"]
-    ):  # from, number, module, args
+    # from, number, module, args
+    for i, (f, n, m, args) in enumerate(d["backbone"] + d["head"]):
         m = eval(m) if isinstance(m, str) else m  # eval strings
         for j, a in enumerate(args):
             with contextlib.suppress(NameError):
@@ -1059,15 +1059,9 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
         )  # module
         t = str(m)[8:-2].replace("__main__.", "")  # module type
         np = sum(x.numel() for x in m_.parameters())  # number params
-        m_.i, m_.f, m_.type, m_.np = (
-            i,
-            f,
-            t,
-            np,
-        )  # attach index, 'from' index, type, number params
-        LOGGER.info(
-            f"{i:>3}{str(f):>18}{n_:>3}{np:10.0f}  {t:<40}{str(args):<30}"
-        )  # print
+        m_.i, m_.f, m_.type, m_.np = (i, f, t, np)
+        # attach index, 'from' index, type, number params
+        LOGGER.info(f"{i:>3}{str(f):>18}{n_:>3}{np:10.0f}  {t:<40}{str(args):<30}")
         save.extend(
             x % i for x in ([f] if isinstance(f, int) else f) if x != -1
         )  # append to savelist
@@ -1118,3 +1112,15 @@ if __name__ == "__main__":
 
     else:  # report fused model summary
         model.fuse()
+
+    x = torch.rand(1, 3, 256, 256)
+    y = model(x)  # tuple(list[tensor, tensor], list[list[t, t, t], list[t, t, t]])
+    n_backbone = len(model.yaml["backbone"])
+
+    print("backbone layers: 0 ..", n_backbone - 1)
+    print("head/neck layers:", n_backbone, "..", len(model.model) - 1)
+    # t1 = torch.rand(1, 3, 640, 640)
+    # t1 = torch.rand(1, 3, 256, 256)
+    # x = model.model(t1)
+    # for i in range(len(x)):
+    #     print(x[i].shape)

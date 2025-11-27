@@ -284,6 +284,17 @@ def init_seeds(seed=0, deterministic=False):
         os.environ["PYTHONHASHSEED"] = str(seed)
 
 
+def strip_prefix_from_state_dict(weight_dict, prefix="mlist.1."):
+    new_dict = {}
+    for k, v in weight_dict.items():
+        if k.startswith(prefix):
+            new_k = k[len(prefix) :]  # drop "mlist."
+        else:
+            new_k = k
+        new_dict[new_k] = v
+    return new_dict
+
+
 def intersect_dicts(da, db, exclude=()):
     # Dictionary intersection of matching keys and shapes, omitting 'exclude' keys, using da values
     return {
@@ -637,9 +648,7 @@ def check_dataset(data, autodownload=True):
     # Parse yaml
     train, val, test, s = (data.get(x) for x in ("train", "val", "test", "download"))
     if val:
-        val = [
-            Path(x).resolve() for x in (val if isinstance(val, list) else [val])
-        ]  # val path
+        # val = [Path(x).resolve() for x in (val if isinstance(val, list) else [val])]
         # if not all(x.exists() for x in val):
         if not os.path.exists(str(val)):
             LOGGER.info(
@@ -663,7 +672,6 @@ def check_dataset(data, autodownload=True):
             else:  # python script
                 # r = exec(s, {"yaml": data})  # return None
                 r = 1
-                print("🐒")
             dt = f"({round(time.time() - t, 1)}s)"
             s = (
                 f"success ✅ {dt}, saved to {colorstr('bold', DATASETS_DIR)}"

@@ -126,7 +126,12 @@ YOLO-based models pop up a lot in regular image detection, but they don't show u
 Multiplanar MRI scans use axial, coronal and sagittal slices to detect tumors that might look different depending on angle. Prior research has looked into ways to combine these angles effectively. Instead of one method, Piantadosi \cite{piantadosi} used groups of 2D networks to better separate MRI tissue types in brain images. Similarly, the MPS-FFA model \cite{mpsffa} introduces mixed features from various scales and planes to help sort Alzheimer’s cases, showing how blending directional data boosts accuracy. Some research into detecting objects like Barbato and Menga’s use of YOLOv5m, found low average accuracy when checking multi-view MRI images, showing it's difficult to detect lesions from different body angles. In those works, common issues pop up now and then: lesions change size or shift place depending on the view, thinner image layers lead to more tiny lesions appearing, and also training one system to handle all three imaging directions remains difficult.
 
 \subsection{Mixture-of-Experts}
-
+Integrating various knowledge into one for machine learning is especially important as it can enable utilization of pretrained knowledge.
+N.~Shazeer \textit{et al}.~\cite{mixture-of-experts} proposed a neural network architecture called Mixture-of-Experts which considers each model as an expert and uses a gating layer to combine the models into one.
+Its potential lies in computational efficiency, scalability, and leveraging specialized expert modules.
+G.~Chen \textit{et al}.~\cite{lion} used router module for multimodal large language model (MLLM) called LION, treating each AdaptFormer \cite{adaptformer} as an expert.
+Each AdaptFormer is allocated to perform image-level and region-level task given the input image and prompt, and LION adopts a router module to control the ratio between image-level and region-level knowledge.
+In terms of medical machine learning area, some works \cite{li2021medical, yadav2025scalable} employ mixture-of-experts architecture to handle brain tumor detection problem.
 
 \begin{table*}[ht]
 \raggedright

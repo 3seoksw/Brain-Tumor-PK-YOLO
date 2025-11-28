@@ -1,22 +1,127 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{asif2025advancements}
 S.~Asif, Y.~Wenhui, S.~ur~Rehman, Q.~ul~ain, K.~Amjad, Y.~Yueyang, S.~Jinhai, and M.~Awais.
 \newblock Advancements and prospects of machine learning in medical diagnostics: unveiling the future of diagnostic precision.
 \newblock {\em Archives of Computational Methods in Engineering}, 32(2):853--883, 2025.
 
+\bibitem{detrframeworkbasic}
+N.~Carion, F.~Massa, G.~Synnaeve, N.~Usunier, A.~Kirillov, and S.~Zagoruyko.
+\newblock End-to-end object detection with transformers.
+\newblock In {\em European conference on computer vision}, pages 213--229. Springer, 2020.
+
+\bibitem{lion}
+G.~Chen, L.~Shen, R.~Shao, X.~Deng, and L.~Nie.
+\newblock Lion: Empowering multimodal large language model with dual-level visual knowledge.
+\newblock In {\em Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 26540--26550, 2024.
+
+\bibitem{lwdetr}
+Q.~Chen, X.~Su, X.~Zhang, J.~Wang, J.~Chen, Y.~Shen, C.~Han, Z.~Chen, W.~Xu, F.~Li, et~al.
+\newblock Lw-detr: A transformer replacement to yolo for real-time detection.
+\newblock {\em arXiv preprint arXiv:2406.03459}, 2024.
+
+\bibitem{groupdetr}
+Q.~e.~a. Chen.
+\newblock Group detr v2: Strong object detector with encoder-decoder pretraining.
+\newblock {\em arXiv:2211.03594}, 2022.
+
+\bibitem{adaptformer}
+S.~Chen, C.~Ge, Z.~Tong, J.~Wang, Y.~Song, J.~Wang, and P.~Luo.
+\newblock Adaptformer: Adapting vision transformers for scalable visual recognition.
+\newblock {\em Advances in Neural Information Processing Systems}, 35:16664--16678, 2022.
+
+\bibitem{updetr}
+Z.~Dai, B.~Cai, Y.~Lin, and J.~Chen.
+\newblock Unsupervised pre-training for detection transformers.
+\newblock {\em IEEE transactions on pattern analysis and machine intelligence}, 45(11):12772--12782, 2022.
+
+\bibitem{braintumerbasic}
+S.~Das and R.~S. Goswami.
+\newblock Advancements in brain tumor analysis: a comprehensive review of machine learning, hybrid deep learning, and transfer learning approaches for mri-based classification and segmentation.
+\newblock {\em Multimedia Tools and Applications}, 84(23):26645--26682, 2025.
+
+\bibitem{salience}
+X.~Hou, M.~Liu, S.~Zhang, P.~Wei, and B.~Chen.
+\newblock Salience detr: Enhancing detection transformer with hierarchical salience filtering refinement.
+\newblock In {\em Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 17574--17583, 2024.
+
+\bibitem{yolov5}
+G.~Jocher.
+\newblock Yolov5 by ultralytics, may 2020.
+\newblock {\em URL https://github. com/ultralytics/yolov5}, 2023.
+
+\bibitem{rcsyolo}
+M.~Kang, C.-M. Ting, F.~F. Ting, and R.~C.-W. Phan.
+\newblock Rcs-yolo: A fast and high-accuracy object detector for brain tumor detection.
+\newblock In {\em International conference on medical image computing and computer-assisted intervention}, pages 600--610. Springer, 2023.
+
+\bibitem{bgfyolo}
+M.~Kang, C.-M. Ting, F.~F. Ting, and R.~C.-W. Phan.
+\newblock Bgf-yolo: Enhanced yolov8 with multiscale attentional feature fusion for brain tumor detection.
+\newblock In {\em MICCAI}, 2024.
+
 \bibitem{kang2025pk}
 M.~Kang, F.~F. Ting, R.~C.-W. Phan, and C.-M. Ting.
 \newblock Pk-yolo: Pretrained knowledge guided yolo for brain tumor detection in multiplanar mri slices.
 \newblock In {\em 2025 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)}, pages 3732--3741. IEEE, 2025.
+
+\bibitem{li2021medical}
+S.~Li, X.~Sui, X.~Luo, X.~Xu, Y.~Liu, and R.~Goh.
+\newblock Medical image segmentation using squeeze-and-expansion transformers.
+\newblock {\em arXiv preprint arXiv:2105.09511}, 2021.
+
+\bibitem{mpsffa}
+F.~Liu, H.~Wang, S.-N. Liang, Z.~Jin, S.~Wei, and X.~Li.
+\newblock Mps-ffa: A multiplane and multiscale feature fusion attention network for alzheimer’s disease prediction with structural mri.
+\newblock {\em Computers in Biology and Medicine}, 157:106790, 2023.
+
+\bibitem{mrisurvey}
+P.~Mittal et~al.
+\newblock From black box ai to xai in neuro-oncology: a survey on mri-based tumor detection.
+\newblock {\em Discover Artificial Intelligence}, 5(1):1--21, 2025.
+
+\bibitem{guide}
+S.~Otake, T.~Taoka, M.~Maeda, and W.~T. Yuh.
+\newblock A guide to identification and selection of axial planes in magnetic resonance imaging of the brain.
+\newblock {\em The neuroradiology journal}, 31(4):336--344, 2018.
+
+\bibitem{piantadosi}
+G.~Piantadosi, M.~Sansone, R.~Fusco, and C.~Sansone.
+\newblock Multi-planar 3d breast segmentation in mri via deep convolutional neural networks.
+\newblock {\em Artificial Intelligence in Medicine}, 103:101781, 2020.
 
 \bibitem{rasool2025brain}
 N.~Rasool and J.~I. Bhat.
 \newblock Brain tumour detection using machine and deep learning: a systematic review.
 \newblock {\em Multimedia tools and applications}, 84(13):11551--11604, 2025.
 
-\bibitem{yolo}
+\bibitem{redmon2016lookonceunifiedrealtime}
 J.~Redmon, S.~Divvala, R.~Girshick, and A.~Farhadi.
 \newblock You only look once: Unified, real-time object detection, 2016.
+
+\bibitem{mixture-of-experts}
+N.~Shazeer, A.~Mirhoseini, K.~Maziarz, A.~Davis, Q.~Le, G.~Hinton, and J.~Dean.
+\newblock Outrageously large neural networks: The sparsely-gated mixture-of-experts layer.
+\newblock {\em arXiv preprint arXiv:1701.06538}, 2017.
+
+\bibitem{yolov9}
+C.-Y. Wang, I.-H. Yeh, and H.-Y. Mark~Liao.
+\newblock Yolov9: Learning what you want to learn using programmable gradient information.
+\newblock In {\em European conference on computer vision}, pages 1--21. Springer, 2024.
+
+\bibitem{yadav2025scalable}
+R.~K. Yadav, M.~Kumar, and A.~Nandi.
+\newblock A scalable brain tumor diagnosis from large-scale mri datasets using cnn-vit and expert-attention fusions.
+\newblock {\em International Journal of Computational Intelligence Systems}, 18(1):1--25, 2025.
+
+\bibitem{rtdetr}
+Y.~e.~a. Zhao.
+\newblock Detrs beat yolos on real-time object detection.
+\newblock In {\em CVPR}, 2024.
+
+\bibitem{codetrs}
+Z.~Zong, G.~Song, and Y.~Liu.
+\newblock Detrs with collaborative hybrid assignments training.
+\newblock In {\em Proceedings of the IEEE/CVF international conference on computer vision}, pages 6748--6758, 2023.
 
 \end{thebibliography}

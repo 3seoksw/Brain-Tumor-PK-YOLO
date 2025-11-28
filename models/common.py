@@ -393,9 +393,10 @@ class Router(nn.Module):
         self.avg_pooling = nn.AdaptiveAvgPool2d(1)
 
         self.plane_scorers = nn.ModuleList()
-        for i in range(self.num_planes):
+        channels_per_scale = [64, 128, 256, 512, 1024]
+        for ch in channels_per_scale:
             scorer = nn.Sequential(
-                nn.Linear(i, 64),
+                nn.Linear(ch, 64),
                 nn.ReLU(),
                 nn.Linear(64, 1),
             )

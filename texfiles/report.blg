@@ -2,50 +2,45 @@ This is BibTeX, Version 0.99d (TeX Live 2023)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: report.aux
 The style file: abbrv.bst
-Illegal, another \bibstyle command---line 32 of file report.aux
- : \bibstyle
- :          {abbrv}
-I'm skipping whatever remains of this command
 Database file #1: bibfile.bib
-You've used 4 entries,
+You've used 25 entries,
             2118 wiz_defined-function locations,
-            522 strings with 4625 characters,
-and the built_in function-call counts, 1768 in all, are:
-= -- 171
-> -- 102
-< -- 1
-+ -- 40
-- -- 36
-* -- 138
-:= -- 288
-add.period$ -- 12
-call.type$ -- 4
-change.case$ -- 30
+            636 strings with 9078 characters,
+and the built_in function-call counts, 10484 in all, are:
+= -- 1012
+> -- 607
+< -- 7
++ -- 241
+- -- 214
+* -- 781
+:= -- 1714
+add.period$ -- 78
+call.type$ -- 25
+change.case$ -- 180
 chr.to.int$ -- 0
-cite$ -- 4
-duplicate$ -- 54
-empty$ -- 125
-format.name$ -- 36
-if$ -- 366
+cite$ -- 25
+duplicate$ -- 364
+empty$ -- 739
+format.name$ -- 214
+if$ -- 2181
 int.to.chr$ -- 0
-int.to.str$ -- 4
-missing$ -- 3
-newline$ -- 22
-num.names$ -- 8
-pop$ -- 34
+int.to.str$ -- 25
+missing$ -- 24
+newline$ -- 127
+num.names$ -- 50
+pop$ -- 194
 preamble$ -- 1
-purify$ -- 26
+purify$ -- 155
 quote$ -- 0
-skip$ -- 44
+skip$ -- 275
 stack$ -- 0
-substring$ -- 122
-swap$ -- 16
-text.length$ -- 1
+substring$ -- 652
+swap$ -- 105
+text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 16
+type$ -- 100
 warning$ -- 0
-while$ -- 15
-width$ -- 5
-write$ -- 44
-(There was 1 error message)
+while$ -- 89
+width$ -- 27
+write$ -- 271

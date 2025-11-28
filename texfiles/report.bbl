@@ -80,11 +80,6 @@ P.~Mittal et~al.
 \newblock From black box ai to xai in neuro-oncology: a survey on mri-based tumor detection.
 \newblock {\em Discover Artificial Intelligence}, 5(1):1--21, 2025.
 
-\bibitem{guide}
-S.~Otake, T.~Taoka, M.~Maeda, and W.~T. Yuh.
-\newblock A guide to identification and selection of axial planes in magnetic resonance imaging of the brain.
-\newblock {\em The neuroradiology journal}, 31(4):336--344, 2018.
-
 \bibitem{piantadosi}
 G.~Piantadosi, M.~Sansone, R.~Fusco, and C.~Sansone.
 \newblock Multi-planar 3d breast segmentation in mri via deep convolutional neural networks.

@@ -390,24 +390,50 @@ class Router(nn.Module):
             backbone.load_state_dict(new_weight, strict=False)
             self.module_list.append(backbone)
 
+        self.avg_pooling = nn.AdaptiveAvgPool2d(1)
+
+        self.plane_scorers = nn.ModuleList()
+        for i in range(self.num_planes):
+            scorer = nn.Sequential(
+                nn.Linear(i, 64),
+                nn.ReLU(),
+                nn.Linear(64, 1),
+            )
+            self.plane_scorers.append(scorer)
         # three planes, five outputs
-        self.weight = nn.Parameter(torch.ones(self.num_planes, 5))
+        # self.weight = nn.Parameter(torch.ones(self.num_planes, 5))
 
     def forward(self, x):
         axial_out = self.module_list[0](x)
         coronal_out = self.module_list[1](x)
         sagittal_out = self.module_list[2](x)
+
         outs = []
-        for s in range(5):
-            wa = self.weight[0, s]
-            wc = self.weight[1, s]
-            ws = self.weight[2, s]
+        for s_idx in range(5):
+            axial = axial_out[s_idx]
+            coronal = coronal_out[s_idx]
+            sagittal = sagittal_out[s_idx]
+            B, C, H, W = axial.shape
 
-            a = axial_out[s]
-            c = coronal_out[s]
-            s = sagittal_out[s]
+            avg_axial = self.avg_pooling(axial).view(B, C)
+            avg_coronal = self.avg_pooling(coronal).view(B, C)
+            avg_sagittal = self.avg_pooling(sagittal).view(B, C)
 
-            fused = wa * a + wc * c + ws * s
+            scorer = self.plane_scorers[s_idx]
+
+            a_score = scorer(avg_axial)
+            c_score = scorer(avg_coronal)
+            s_score = scorer(avg_sagittal)
+
+            scores = torch.cat([a_score, c_score, s_score], dim=1)  # [B, 3]
+
+            gate = F.softmax(scores, dim=1)  # [B, 3]
+
+            wa = gate[:, 0].view(B, 1, 1, 1)
+            wc = gate[:, 1].view(B, 1, 1, 1)
+            ws = gate[:, 2].view(B, 1, 1, 1)
+
+            fused = wa * axial + wc * coronal + ws * sagittal
             outs.append(fused)
         return outs
 

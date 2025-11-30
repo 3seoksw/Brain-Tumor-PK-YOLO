@@ -268,6 +268,12 @@ and $W_k$ represents $k$-th plane-specific trainable weight vector controlling t
   \end{tabular}
 \end{table}
 
+\section{Results}
+The proposed Mixture-PK-YOLO model was evaluated for brain tumor detection using multiplanar MRI scans and compared with several DETR-based and YOLO-based models. Overall, the results show that it maintains the strong detection capability of PK-YOLO while introducing a practical direction for addressing domain shift across multiplanar imaging.
+PK-YOLO still performs well, demonstrating solid detection results and outperforming many top-tier models in metrics such as mAP50 and mAP50–95. Since PK-YOLO’s backbone is pretrained on axial slices, it naturally performs better when the test data resembles that distribution. Crucially, adding two more backbones in Mixture-PK-YOLO does not harm axial performance; however, performance on coronal and sagittal slices decreases. For example, the coronal mAP50 drops from 0.805 in PK-YOLO to 0.495 in Mixture-PK-YOLO. This outcome may be influenced by two factors: (1) even though Mixture-PK-YOLO introduces two additional experts, these new backbones are not pretrained on coronal or sagittal slices, (2) the router module may not correctly learn the weighting of the three experts. During training, it tends to emphasize the stronger axial expert, which leads to a fused representation biased toward axial features and reduces the model’s ability to capture discriminative information from the other planes.
+Even though the overall setup retains information well across different configurations which suggests that the mixture approach expands the feature space and captures more diverse representations. It does not always surpass the original PK-YOLO in terms of precision or average precision. This indicates that while the added components provide value, the way they are fused still requires refinement to support more reliable decision-making. Additionally, experiments using different image resolutions show that training consistency affects final performance, with smaller inputs occasionally yielding better results.
+Overall, the outcomes indicate that Mixture-PK-YOLO maintains stability on axial evaluation, but further improvements are necessary for the model to fully leverage multiplanar information. Enhancements in backbone pretraining, router supervision, and balanced representation learning may be required to achieve consistent gains across all MRI planes.
+
 
 \section{Conclusion}
 

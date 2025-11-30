@@ -3,7 +3,7 @@
 \usepackage{stylefile,times}
 \usepackage{hyperref}
 \usepackage{graphicx}
-\usepackage{array, makecell, amsmath}
+\usepackage{array, makecell, amsmath, multirow}
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{url}
 %\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
@@ -93,6 +93,8 @@ Even though PK-YOLO outperforms other models such as RT-DETR or LW-DETR in the a
 
 \begin{table}
     \centering
+    \caption{PK-YOLO's performance comparison table across different models and MRI planes.}
+    \label{tab:perf_comp}
     \begin{tabular}{c|cccc}
         \Xhline{2\arrayrulewidth}
         Dataset & Precision & Recall & mAP$_{50}$ & mAP$_{50-95}$ \\
@@ -104,9 +106,6 @@ Even though PK-YOLO outperforms other models such as RT-DETR or LW-DETR in the a
         sagittal & 0.476 & 0.845 & 0.582 & 0.382 \\
         \Xhline{2\arrayrulewidth}
     \end{tabular}
-    \newline
-    \caption{PK-YOLO's performance comparison table across different models and MRI planes.}
-    \label{tab:perf_comp}
 \end{table}
 
 %\begin{figure}[h!]
@@ -222,7 +221,118 @@ and $W_k$ represents $k$-th plane-specific trainable weight vector controlling t
 
 \section{Experiments}
 
+% \begin{table}
+%   \centering
+%   \begin{tabular}{l | c | c | c | c | c | c}
+%       \Xhline{2\arrayrulewidth}
+%       Model & Plane & Image Size & Precision & Recall & mAP$_{50}$ & mAP$_{50:95}$ \\
+%       \hline \hline
+%       PK-YOLO & \multirow{3}{*}{Axial} & 640 & \textbf{0.858} & \underline{0.896} & \underline{0.947} & \textbf{0.681} \\
+%       Mixture-PK-YOLO & & 640 & \textbf{0.858} & 0.765 & 0.865 & 0.523 \\
+%       Mixture-PK-YOLO & & 320 & \underline{0.839} & \textbf{0.913} & \textbf{0.950} & \underline{0.630} \\
+%       \hline
+%       PK-YOLO & \multirow{3}{*}{Coronal} & 640 & \textbf{0.834} & \textbf{0.793} & \textbf{0.805} & \textbf{0.689} \\
+%       Mixture-PK-YOLO & & 640 & 0.457 & 0.719 & 0.495 & 0.265 \\
+%       Mixture-PK-YOLO & & 320 & \underline{0.460} & \underline{0.771} & \underline{0.549} & \underline{0.366} \\
+%       \hline
+%       PK-YOLO & \multirow{3}{*}{Sagittal} & 640 & \textbf{0.476} & \textbf{0.845} & \textbf{0.582} & \textbf{0.382} \\
+%       Mixture-PK-YOLO & & 640 & 0.449 & 0.574 & 0.401 & 0.213 \\
+%       Mixture-PK-YOLO & & 320 & \underline{0.452} & \underline{0.780} & \underline{0.455} & \underline{0.243} \\
+%       \Xhline{2\arrayrulewidth}
+%   \end{tabular}
+% \end{table}
+
+\begin{table}
+  \centering
+  \label{tab:final_comp}
+  \caption{TODO: Put caption inside.}
+  \begin{tabular}{l | c | c | c | c | c | c}
+      \Xhline{2\arrayrulewidth}
+      Model & Plane & Image Size & Precision & Recall & mAP$_{50}$ & mAP$_{50:95}$ \\
+      \hline \hline
+      YOLOv8x & \multirow{4}{*}{Axial} & 640 & \textbf{0.894} & 0.836 & 0.908 & \underline{0.656} \\
+      PK-YOLO & & 640 & \underline{0.858} & \underline{0.896} & \underline{0.947} & \textbf{0.681} \\
+      Mixture-PK-YOLO & & 640 & \underline{0.858} & 0.765 & 0.865 & 0.523 \\
+      Mixture-PK-YOLO & & 320 & 0.839 & \textbf{0.913} & \textbf{0.950} & 0.630 \\
+      \hline
+      YOLOv8x & \multirow{4}{*}{Coronal} & 640 & \underline{0.672} & 0.650 & \underline{0.697} & \underline{0.524} \\
+      PK-YOLO & & 640 & \textbf{0.834} & \textbf{0.793} & \textbf{0.805} & \textbf{0.689} \\
+      Mixture-PK-YOLO & & 640 & 0.457 & 0.719 & 0.495 & 0.265 \\
+      Mixture-PK-YOLO & & 320 & 0.460 & \underline{0.771} & 0.549 & 0.366 \\
+      \hline
+      YOLOv8x & \multirow{4}{*}{Sagittal} & 640 & 0.414 & \underline{0.782} & \underline{0.533} & \textbf{0.385} \\
+      PK-YOLO & & 640 & \textbf{0.476} & \textbf{0.845} & \textbf{0.582} & \underline{0.382} \\
+      Mixture-PK-YOLO & & 640 & 0.449 & 0.574 & 0.401 & 0.213 \\
+      Mixture-PK-YOLO & & 320 & \underline{0.452} & 0.780 & 0.455 & 0.243 \\
+      \Xhline{2\arrayrulewidth}
+  \end{tabular}
+\end{table}
+
+
 \section{Conclusion}
+
+\section{Appendix}
+
+\begin{table}
+  \centering
+  \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|c|c|c|c|c|}
+      \hline
+      Dataset & Model & Precision & Recall & mAP50 & mAP50:95 \\ \hline
+      
+      \multirow{13}{*}{axial t1ce 2 class}
+      & UP-DETR [7] & - & - & 0.754 & 0.477 \\ \cline{2-6}
+      & RT-DETR-X [58] & 0.662 & 0.568 & 0.538 & 0.347 \\ \cline{2-6}
+      & LW-DETR-xlarge [4] & - & - & 0.926 & 0.687 \\ \cline{2-6}
+      & Co-DETR with Swin L [60] & - & - & 0.893 & 0.584 \\ \cline{2-6}
+      & Salience DETR with FocalNet-L [19] & - & - & 0.816 & 0.526 \\ \cline{2-6}
+      & RCS-YOLO [25] & 0.944 & 0.839 & 0.839 & 0.573 \\ \cline{2-6}
+      & BGF-YOLO [26] & 0.941 & 0.789 & 0.941 & 0.579 \\ \cline{2-6}
+      & YOLOv5x [21] & 0.741 & 0.679 & 0.828 & 0.596 \\ \cline{2-6}
+      & YOLOv8x [23] & 0.894 & 0.836 & 0.908 & 0.656 \\ \cline{2-6}
+      & YOLOv9-E [50] & 0.838 & 0.877 & 0.935 & 0.667 \\ \cline{2-6}
+      & YOLOv10-X [46] & 0.743 & 0.821 & 0.832 & 0.558 \\ \cline{2-6}
+      & Mamba YOLO-L [52] & 0.891 & 0.753 & 0.915 & 0.666 \\ \cline{2-6}
+      & PK-YOLO (Ours) & 0.858 & 0.896 & 0.947 & 0.681 \\ \hline
+      Axial 320 & Ours & 0.839 & 0.913 & 0.950 & 0.630 \\ \hline
+      Axial 640 & Ours & 0.858 & 0.765 & 0.865 & 0.523 \\ \hline
+      
+      \multirow{13}{*}{coronal t1ce 2 class}
+      & UP-DETR & - & - & 0.236 & 0.186 \\ \cline{2-6}
+      & RT-DETR-X & 0.742 & 0.592 & 0.575 & 0.407 \\ \cline{2-6}
+      & LW-DETR-xlarge & - & - & 0.723 & 0.549 \\ \cline{2-6}
+      & Co-DETR with Swin L & - & - & 0.510 & 0.304 \\ \cline{2-6}
+      & Salience DETR with FocalNet-L & - & - & 0.520 & 0.343 \\ \cline{2-6}
+      & RCS-YOLO & 0.493 & 0.884 & 0.574 & 0.369 \\ \cline{2-6}
+      & BGF-YOLO & 0.494 & 0.889 & 0.593 & 0.417 \\ \cline{2-6}
+      & YOLOv5x & 0.648 & 0.690 & 0.681 & 0.466 \\ \cline{2-6}
+      & YOLOv8x & 0.672 & 0.650 & 0.697 & 0.524 \\ \cline{2-6}
+      & YOLOv9-E & 0.552 & 0.788 & 0.729 & 0.526 \\ \cline{2-6}
+      & YOLOv10-X & 0.519 & 0.656 & 0.605 & 0.423 \\ \cline{2-6}
+      & Mamba YOLO-L & 0.641 & 0.770 & 0.758 & 0.539 \\ \cline{2-6}
+      & PK-YOLO (Ours) & 0.834 & 0.793 & 0.805 & 0.689 \\ \hline
+      Coronal 320 & Ours & 0.460 & 0.771 & 0.549 & 0.366 \\ \hline
+      Coronal 640 & Ours & 0.457 & 0.719 & 0.495 & 0.265 \\ \hline
+      
+      \multirow{13}{*}{sagittal t1ce 2 class}
+      & UP-DETR & - & - & 0.231 & 0.137 \\ \cline{2-6}
+      & RT-DETR-X & 0.441 & 0.435 & 0.395 & 0.254 \\ \cline{2-6}
+      & LW-DETR-xlarge & - & - & 0.471 & 0.343 \\ \cline{2-6}
+      & Co-DETR with Swin L & - & - & 0.496 & 0.290 \\ \cline{2-6}
+      & Salience DETR with FocalNet-L & - & - & 0.509 & 0.346 \\ \cline{2-6}
+      & RCS-YOLO & 0.500 & 0.779 & 0.515 & 0.357 \\ \cline{2-6}
+      & BGF-YOLO & 0.485 & 0.792 & 0.545 & 0.347 \\ \cline{2-6}
+      & YOLOv5x & 0.469 & 0.840 & 0.561 & 0.370 \\ \cline{2-6}
+      & YOLOv8x & 0.414 & 0.782 & 0.533 & 0.385 \\ \cline{2-6}
+      & YOLOv9-E & 0.437 & 0.869 & 0.534 & 0.383 \\ \cline{2-6}
+      & YOLOv10-X & 0.536 & 0.525 & 0.544 & 0.361 \\ \cline{2-6}
+      & Mamba YOLO-L & 0.477 & 0.842 & 0.559 & 0.385 \\ \cline{2-6}
+      & PK-YOLO (Ours) & 0.476 & 0.845 & 0.582 & 0.382 \\ \hline
+      Sagittal 320 & Ours & 0.452 & 0.780 & 0.455 & 0.243 \\ \hline
+      Sagittal 640 & Ours & 0.449 & 0.574 & 0.401 & 0.213 \\ \hline
+    \end{tabular}
+  }
+\end{table}
 
 
 \bibliographystyle{abbrv}

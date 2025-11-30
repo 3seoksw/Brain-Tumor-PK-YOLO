@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.5)  28 NOV 2025 17:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.5)  29 NOV 2025 20:39
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -264,13 +264,19 @@ LaTeX Info: Redefining \Relbar on input line 971.
 \mathdisplay@stack=\toks25
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
+) (/usr/local/texlive/2023/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
+\multirow@colwidth=\skip60
+\multirow@cntb=\count287
+\multirow@dima=\skip61
+\bigstrutjot=\dimen167
 )
 LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 37.
  (/usr/local/texlive/2023/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 ) (/usr/local/texlive/2023/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2023-03-30 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count287
+\l__color_backend_stack_int=\count288
 \l__pdf_internal_box=\box55
 ) (./report.aux)
 \openout1 = `report.aux'.
@@ -367,26 +373,20 @@ Package hyperref Info: Link coloring OFF on input line 37.
 
  (/usr/local/texlive/2023/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count288
-\scratchdimen=\dimen167
+\scratchcounter=\count289
+\scratchdimen=\dimen168
 \scratchbox=\box56
-\nofMPsegments=\count289
-\nofMParguments=\count290
+\nofMPsegments=\count290
+\nofMParguments=\count291
 \everyMPshowfont=\toks26
-\MPscratchCnt=\count291
-\MPscratchDim=\dimen168
-\MPnumerator=\count292
-\makeMPintoPDFobject=\count293
+\MPscratchCnt=\count292
+\MPscratchDim=\dimen169
+\MPnumerator=\count293
+\makeMPintoPDFobject=\count294
 \everyMPtoPDFconversion=\toks27
 ) (/usr/local/texlive/2023/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
- (/usr/local/texlive/2023/texmf-dist/tex/latex/grfext/grfext.sty
-Package: grfext 2019/12/03 v1.3 Manage graphics extensions (HO)
-)
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
-Package grfext Info: Graphics extension search list:
-(grfext)             [.pdf,.png,.jpg,.mps,.jpeg,.jbig2,.jb2,.PDF,.PNG,.JPG,.JPEG,.JBIG2,.JB2,.eps]
-(grfext)             \AppendGraphicsExtensions on input line 504.
  (/usr/local/texlive/2023/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
@@ -400,28 +400,28 @@ File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 Underfull \vbox (badness 2617) has occurred while \output is active []
 
  [3]
-<images/model_comp.png, id=119, 893.301pt x 308.133pt>
+<images/model_comp.png, id=123, 893.301pt x 308.133pt>
 File: images/model_comp.png Graphic file (type png)
 <use images/model_comp.png>
-Package pdftex.def Info: images/model_comp.png  used on input line 218.
+Package pdftex.def Info: images/model_comp.png  used on input line 217.
 (pdftex.def)             Requested size: 397.48499pt x 137.107pt.
- (./report.bbl [4 <./images/model_comp.png>]) [5] (./report.aux)
+ (./report.bbl [4 <./images/model_comp.png>] [5]) [6] (./report.aux)
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: B8D9DF004548CDE1672E27742ED25BD0;1317.
+(rerunfilecheck)             Checksum: D92502B90C08FA54B2E7CBD4F59E8999;1401.
  ) 
 Here is how much of TeX's memory you used:
- 10273 strings out of 476017
- 161804 string characters out of 5789769
- 1864666 words of memory out of 5000000
- 30554 multiletter control sequences out of 15000+600000
+ 10305 strings out of 476017
+ 162104 string characters out of 5789769
+ 1894666 words of memory out of 5000000
+ 30584 multiletter control sequences out of 15000+600000
  524509 words of font info for 51 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,11n,76p,530b,570s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on report.pdf (5 pages, 637599 bytes).
+Output written on report.pdf (6 pages, 644135 bytes).
 PDF statistics:
- 195 PDF objects out of 1000 (max. 8388607)
- 162 compressed objects within 2 object streams
- 44 named destinations out of 1000 (max. 500000)
- 86 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 204 PDF objects out of 1000 (max. 8388607)
+ 170 compressed objects within 2 object streams
+ 47 named destinations out of 1000 (max. 500000)
+ 94 words of extra memory for PDF output out of 10000 (max. 10000000)
 

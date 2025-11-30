@@ -3,8 +3,7 @@
 \usepackage{stylefile,times}
 \usepackage{hyperref}
 \usepackage{graphicx}
-\usepackage{array}
-\usepackage{makecell}
+\usepackage{array, makecell, amsmath}
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{url}
 %\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
@@ -69,7 +68,7 @@ To address these challenges, M.~Kang \textit{et al.}~\cite{kang2025pk} proposed 
 To tackle these issues, Kang’s team introduced PK-YOLO - a fresh take on YOLO built just to detect brain tumors through 2D MRI views from different angles.
 
 
-\section{Limitations of the Previous Work}
+\section{Limitations of the Previous Work}\label{sec:limits}
 While PK-YOLO shows state-of-the-art performance, the performance across three different planes exhibits its limitation.
 %it has limitations because of how multiplanar MRI scans are built.
 This model is trained only on horizontal slices, although brain imaging naturally covers three slices such as horizontal (axial), front-to-back (coronal), and side-to-side (sagittal).
@@ -195,14 +194,34 @@ In terms of medical machine learning area, some works \cite{li2021medical, yadav
 
 
 \section{Method}
+
+In this section, we present the Mixture-PK-YOLO model.
+The proposed model aims to utilize 3D MRI slice knowledge to bridge the gap caused by the domain-shift from the axial plane to other planes.
+As discussed in Section.~\ref{sec:limits}, one of the most notable limitations of the original PK-YOLO stems from its performance drop when sagittal plane images are given to the model compared to axial plane images.
+Inspired by the mixture-of-experts models, Mixture-PK-YOLO employs three backbone models, compared to the PK-YOLO with one single backbone model, each is treated as an expert to its corresponding plane data.
+This approach is to capture each plane-specific visual cues for each backbone models.
+
+Since the proposed model have added additional two more backbone models, it is necessary to combine the outputs from the backbone models into one.
+As shown in Figure~\ref{fig:model_comp}, router module is adopted to combine the outputs from the backbone models, then feed the SparK RepViT's output to the auxiliary CBNet and YOLOv9 as PK-YOLO did.
+
+% TODO: describe more about the model's input and output
+Assuming $X \in \mathcal{R}^{3\times D \times D}$ is the input image given to the model,
+
+\begin{align}
+  Z = \sum_{k=1}^{3}R_k(X) \cdot W_k,
+\end{align}
+
+\noindent where $R_k(X)$ is a $k$-th plane-specific backbone applied to the input image $X$,
+and $W_k$ represents $k$-th plane-specific trainable weight vector controlling the importance of its plane information.
+
 \begin{figure*}
   \centerline{\includegraphics[width=\textwidth]{images/model_comp.png}}
   \caption{Comparison between the original PK-YOLO and the proposed PK-YOLO. Original PK-YOLO model uses single pretrained backbone model, namely SparK RepViT, fed with axial plane data. Mixture PK-YOLO employs three backbones treating each backbone as an expert to its corresponding plane data. Then a router module integrates the outputs from the backbones into one, then pass it to YOLO model.}
   \label{fig:model_comp}
 \end{figure*}
-here
+
 \section{Experiments}
-here
+
 \section{Conclusion}
 
 

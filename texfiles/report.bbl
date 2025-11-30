@@ -50,6 +50,12 @@ G.~Jocher.
 \newblock Yolov5 by ultralytics, may 2020.
 \newblock {\em URL https://github. com/ultralytics/yolov5}, 2023.
 
+\bibitem{yolov8x}
+G.~Jocher, A.~Chaurasia, and J.~Qiu.
+\newblock Yolo by ultralytics.
+\newblock \url{https://github.com/ultralytics/ultralytics}, 2023.
+\newblock Accessed: 2025-11-30.
+
 \bibitem{rcsyolo}
 M.~Kang, C.-M. Ting, F.~F. Ting, and R.~C.-W. Phan.
 \newblock Rcs-yolo: A fast and high-accuracy object detector for brain tumor detection.

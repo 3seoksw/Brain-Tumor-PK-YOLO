@@ -2,8 +2,8 @@
 \usepackage[preprint]{stylefile}
 \usepackage{stylefile,times}
 \usepackage{hyperref}
-\usepackage{graphicx}
-\usepackage{array, makecell, amsmath, multirow}
+\usepackage{graphicx, subcaption}
+\usepackage{array, makecell, amsmath, amssymb, bm, multirow}
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{url}
 %\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
@@ -75,7 +75,7 @@ This model is trained only on horizontal slices, although brain imaging naturall
 Since every angle or view shows different information, using only one slice can lead to gaps when processing others.
 
 This becomes more obvious when looking at the experimental results from the paper.
-As shown in Table.~\ref{tab:perf_comp}, PK-YOLO performs well in axial views, which is expected because the backbone is already pretrained in axial views.
+As shown in Table~\ref{tab:perf_comp}, PK-YOLO performs well in axial views, which is expected because the backbone is already pretrained in axial views.
 However, the performance drop can be found when switching planes from axial views to coronal or sagittal views.
 For instance, PK-YOLO's mAP$_{50}$ scored 0.947 in axial dataset, but its metric dropped to 0.805 and 0.582 in coronal and sagittal planes dataset, respectively.
 
@@ -194,32 +194,70 @@ In terms of medical machine learning area, some works \cite{li2021medical, yadav
 
 \section{Method}
 
-In this section, we present the Mixture-PK-YOLO model.
-The proposed model aims to utilize 3D MRI slice knowledge to bridge the gap caused by the domain-shift from the axial plane to other planes.
-As discussed in Section.~\ref{sec:limits}, one of the most notable limitations of the original PK-YOLO stems from its performance drop when sagittal plane images are given to the model compared to axial plane images.
-Inspired by the mixture-of-experts models, Mixture-PK-YOLO employs three backbone models, compared to the PK-YOLO with one single backbone model, each is treated as an expert to its corresponding plane data.
-This approach is to capture each plane-specific visual cues for each backbone models.
-
-Since the proposed model have added additional two more backbone models, it is necessary to combine the outputs from the backbone models into one.
-As shown in Figure~\ref{fig:model_comp}, router module is adopted to combine the outputs from the backbone models, then feed the SparK RepViT's output to the auxiliary CBNet and YOLOv9 as PK-YOLO did.
-
-% TODO: describe more about the model's input and output
-Assuming $X \in \mathcal{R}^{3\times D \times D}$ is the input image given to the model,
-
-\begin{align}
-  Z = \sum_{k=1}^{3}R_k(X) \cdot W_k,
-\end{align}
-
-\noindent where $R_k(X)$ is a $k$-th plane-specific backbone applied to the input image $X$,
-and $W_k$ represents $k$-th plane-specific trainable weight vector controlling the importance of its plane information.
-
 \begin{figure*}
   \centerline{\includegraphics[width=\textwidth]{images/model_comp.png}}
   \caption{Comparison between the original PK-YOLO and the proposed PK-YOLO. Original PK-YOLO model uses single pretrained backbone model, namely SparK RepViT, fed with axial plane data. Mixture PK-YOLO employs three backbones treating each backbone as an expert to its corresponding plane data. Then a router module integrates the outputs from the backbones into one, then pass it to YOLO model.}
   \label{fig:model_comp}
 \end{figure*}
 
+In this section, we present the Mixture PK-YOLO model.
+The proposed model aims to utilize 3D MRI slice knowledge to bridge the gap caused by the domain-shift from the axial plane to other planes.
+As discussed in Section~\ref{sec:limits}, one of the most notable limitations of the original PK-YOLO stems from its performance drop when sagittal plane images are given to the model compared to axial plane images.
+Inspired by the mixture-of-experts models, Mixture PK-YOLO employs three backbone models, compared to the PK-YOLO with one single backbone model, each is treated as an expert to its corresponding plane data, as shown in Figure~\ref{fig:model_comp}.
+This approach is to capture each plane-specific visual cues for each backbone models.
+
+Since the proposed model have added additional two more backbone models, it is necessary to combine the outputs from the backbone models into one.
+As shown in Figure~\ref{fig:model_comp}, router module is adopted to combine the outputs from the SparK RepViT backbone models, then feed the outputs to the auxiliary CBNet and YOLOv9 as PK-YOLO did.
+Detailed visual illustration of the router module from the proposed Mixture PK-YOLO can be found in \ref{fig:router}.
+
+We assume three anatomical MRI planes, such that $k \in \{1, 2, 3\}$ corresponding to the planes $\{\text{axial}, \text{coronal}, \text{sagittal}\}$.
+Given the planes, each plane-specific SparK RepViT backbone expert is denoted as $F_k(X)$, where $X\in \mathbb{R}^{C\times H \times W}$.
+In this work, we assume all three channels are used (\textit{i.e.}, $C=3$) and fix the image size to $H\times W = 320\times 320$.
+Each backbone produces a set of multi-scale feature maps $F^{(n)}_k(X) \in \mathbb{R}^{C_n\times H_n\times W_n}$, $\forall n = 1, \cdots, 5$, representing an image representation with different dimension sizes for scale $n$.
+For each scale $n$ and plane $k$, the spatial feature map is reduced to a channel vector, 
+
+\begin{align}
+  \tilde{F}^{(n)}_k(X) = AAP(F^{(n)}_k(X)) \in \mathbb{R}^{C_n},
+\end{align}
+
+\noindent where $AAP(\cdot)$ is adaptive average pooling layer. Then, the reduced feature maps are given to the score function that maps,
+
+\begin{align}
+  & z^{(n)}_k = g_n(\tilde{F}^{(n)}_k(X)) \in \mathbb{R} \\
+  & \rightarrow \bm{z}^{(n)} = [z^{(n)}_1, z^{(n)}_2, z^{(n)}_3 ] \in \mathbb{R}^3.
+\end{align}
+
+\noindent In this work, the score function $g_n(\cdot)$ is replaced with two-layered simple linear layers with ReLU layer inplaced in between.
+
+Then, the weights are measured for each scores of backbone models' outputs as such,
+
+\begin{align}
+  w^{(n)}_k = \frac{\exp{(z^{(n)}_k)}}{\sum_{i=1}^{3} \exp{((z^{(n)}_i))}}.
+\end{align}
+
+\noindent The weight $w^{(n)}_k$ decides which plane to give a higher importance than the other plane information.
+Given the weights, the router module controls the importance of each backbone's output as follows,
+
+\begin{align}
+  Z^{(n)} = \sum_{i=1}^{3} w^{(n)}_i \cdot F^{(n)}_i(X).
+\end{align}
+
+Unlike original PK-YOLO, Mixture PK-YOLO completely freezes the pretrained backbone models to remain the pretrained knowledge on brain tumor images across the planes.
+As PK-YOLO uses a single backbone model pretrained on axial data to capture the general knowledge of brain tumor, it is inevitable to unfreeze the backbone to adapt it to different plane data (\textit{i.e.}, coronal and sagittal data).
+Whereas Mixture PK-YOLO doesn't require a fine-tuning process like the original PK-YOLO, since it employs three specialized backbone models, producing plane-specific brain tumor knowledge.
+Not only this, it can significantly reduce the amount of parameters required for training by freezing the pretrained backbone models.
+By freezing the SparK RepViT backbone, we are able to save almost 50\% of parameters to be trained, with PK-YOLO requiring 109.4 million parameters, compared to Mixture PK-YOLO requiring 55.5 million parameters.
+Due to its reduction in the number of parameters to train, training overhead can be significantly reduced.
+
+\begin{figure}
+  \centerline{\includegraphics[width=0.6\textwidth]{images/router.png}}
+  \caption{Router module from Mixture PK-YOLO to control the importance of plane-specific information.}
+  \label{fig:router}
+\end{figure}
+
 \section{Experiments}
+
+In this section, we evaluate our Mixture PK-YOLO model with the original PK-YOLO and the second best performed model, YOLOv8x \cite{yolov8x}.
 
 % \begin{table}
 %   \centering
@@ -228,19 +266,36 @@ and $W_k$ represents $k$-th plane-specific trainable weight vector controlling t
 %       Model & Plane & Image Size & Precision & Recall & mAP$_{50}$ & mAP$_{50:95}$ \\
 %       \hline \hline
 %       PK-YOLO & \multirow{3}{*}{Axial} & 640 & \textbf{0.858} & \underline{0.896} & \underline{0.947} & \textbf{0.681} \\
-%       Mixture-PK-YOLO & & 640 & \textbf{0.858} & 0.765 & 0.865 & 0.523 \\
-%       Mixture-PK-YOLO & & 320 & \underline{0.839} & \textbf{0.913} & \textbf{0.950} & \underline{0.630} \\
+%       Mixture PK-YOLO & & 640 & \textbf{0.858} & 0.765 & 0.865 & 0.523 \\
+%       Mixture PK-YOLO & & 320 & \underline{0.839} & \textbf{0.913} & \textbf{0.950} & \underline{0.630} \\
 %       \hline
 %       PK-YOLO & \multirow{3}{*}{Coronal} & 640 & \textbf{0.834} & \textbf{0.793} & \textbf{0.805} & \textbf{0.689} \\
-%       Mixture-PK-YOLO & & 640 & 0.457 & 0.719 & 0.495 & 0.265 \\
-%       Mixture-PK-YOLO & & 320 & \underline{0.460} & \underline{0.771} & \underline{0.549} & \underline{0.366} \\
+%       Mixture PK-YOLO & & 640 & 0.457 & 0.719 & 0.495 & 0.265 \\
+%       Mixture PK-YOLO & & 320 & \underline{0.460} & \underline{0.771} & \underline{0.549} & \underline{0.366} \\
 %       \hline
 %       PK-YOLO & \multirow{3}{*}{Sagittal} & 640 & \textbf{0.476} & \textbf{0.845} & \textbf{0.582} & \textbf{0.382} \\
-%       Mixture-PK-YOLO & & 640 & 0.449 & 0.574 & 0.401 & 0.213 \\
-%       Mixture-PK-YOLO & & 320 & \underline{0.452} & \underline{0.780} & \underline{0.455} & \underline{0.243} \\
+%       Mixture PK-YOLO & & 640 & 0.449 & 0.574 & 0.401 & 0.213 \\
+%       Mixture PK-YOLO & & 320 & \underline{0.452} & \underline{0.780} & \underline{0.455} & \underline{0.243} \\
 %       \Xhline{2\arrayrulewidth}
 %   \end{tabular}
 % \end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{Model size comparison. The reduction rate indicates how much smaller 
+  Mixture PK-YOLO is compared to each model.}
+  \label{tab:models}
+  \begin{tabular}{l | c | c | c}
+      \Xhline{2\arrayrulewidth}
+      Model & \# Params (M) & Reduction vs.\ Mixture PK-YOLO & Image Size \\
+      \hline \hline
+      YOLOv8x & 68.2  & 18.62\% & 640 \\
+      PK-YOLO & 109.4 & 49.26\% & 640 \\
+      \hline
+      Mixture PK-YOLO & 55.5 & -- & 320 \\
+      \Xhline{2\arrayrulewidth}
+  \end{tabular}
+\end{table}
 
 \begin{table}
   \centering
@@ -252,18 +307,18 @@ and $W_k$ represents $k$-th plane-specific trainable weight vector controlling t
       \hline \hline
       YOLOv8x & \multirow{4}{*}{Axial} & 640 & \textbf{0.894} & 0.836 & 0.908 & \underline{0.656} \\
       PK-YOLO & & 640 & \underline{0.858} & \underline{0.896} & \underline{0.947} & \textbf{0.681} \\
-      Mixture-PK-YOLO & & 640 & \underline{0.858} & 0.765 & 0.865 & 0.523 \\
-      Mixture-PK-YOLO & & 320 & 0.839 & \textbf{0.913} & \textbf{0.950} & 0.630 \\
+      Mixture PK-YOLO & & 640 & \underline{0.858} & 0.765 & 0.865 & 0.523 \\
+      Mixture PK-YOLO & & 320 & 0.839 & \textbf{0.913} & \textbf{0.950} & 0.630 \\
       \hline
       YOLOv8x & \multirow{4}{*}{Coronal} & 640 & \underline{0.672} & 0.650 & \underline{0.697} & \underline{0.524} \\
       PK-YOLO & & 640 & \textbf{0.834} & \textbf{0.793} & \textbf{0.805} & \textbf{0.689} \\
-      Mixture-PK-YOLO & & 640 & 0.457 & 0.719 & 0.495 & 0.265 \\
-      Mixture-PK-YOLO & & 320 & 0.460 & \underline{0.771} & 0.549 & 0.366 \\
+      Mixture PK-YOLO & & 640 & 0.457 & 0.719 & 0.495 & 0.265 \\
+      Mixture PK-YOLO & & 320 & 0.460 & \underline{0.771} & 0.549 & 0.366 \\
       \hline
       YOLOv8x & \multirow{4}{*}{Sagittal} & 640 & 0.414 & \underline{0.782} & \underline{0.533} & \textbf{0.385} \\
       PK-YOLO & & 640 & \textbf{0.476} & \textbf{0.845} & \textbf{0.582} & \underline{0.382} \\
-      Mixture-PK-YOLO & & 640 & 0.449 & 0.574 & 0.401 & 0.213 \\
-      Mixture-PK-YOLO & & 320 & \underline{0.452} & 0.780 & 0.455 & 0.243 \\
+      Mixture PK-YOLO & & 640 & 0.449 & 0.574 & 0.401 & 0.213 \\
+      Mixture PK-YOLO & & 320 & \underline{0.452} & 0.780 & 0.455 & 0.243 \\
       \Xhline{2\arrayrulewidth}
   \end{tabular}
 \end{table}
@@ -271,9 +326,18 @@ and $W_k$ represents $k$-th plane-specific trainable weight vector controlling t
 
 \section{Conclusion}
 
+
+
+\bibliographystyle{abbrv}
+\bibliography{bibfile}
+
+\clearpage
+\appendix
+
 \section{Appendix}
 
-\begin{table}
+\subsection{Detailed Performance Comparison}
+\begin{table}[h]
   \centering
   \resizebox{\textwidth}{!}{
     \begin{tabular}{|c|c|c|c|c|c|}
@@ -333,9 +397,5 @@ and $W_k$ represents $k$-th plane-specific trainable weight vector controlling t
     \end{tabular}
   }
 \end{table}
-
-
-\bibliographystyle{abbrv}
-\bibliography{bibfile}
 
 \end{document}

@@ -27,8 +27,9 @@
 \citation{rtdetr}
 \citation{lwdetr}
 \citation{salience}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces PK-YOLO's performance comparison table across different models and MRI planes.}}{2}{table.1}\protected@file@percent }
-\newlabel{tab:perf_comp}{{1}{2}{PK-YOLO's performance comparison table across different models and MRI planes}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces PK-YOLO's performance comparison table across different models and MRI planes.\relax }}{2}{table.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:perf_comp}{{1}{2}{PK-YOLO's performance comparison table across different models and MRI planes.\relax }{table.caption.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Limitations of the Previous Work}{2}{section.2}\protected@file@percent }
 \newlabel{sec:limits}{{2}{2}{Limitations of the Previous Work}{section.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Related Work}{2}{section.3}\protected@file@percent }
@@ -47,17 +48,20 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Multiplanar MRI Analysis}{3}{subsection.3.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Mixture-of-Experts}{3}{subsection.3.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4}Method}{3}{section.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Comparison between the original PK-YOLO and the proposed PK-YOLO. Original PK-YOLO model uses single pretrained backbone model, namely SparK RepViT, fed with axial plane data. Mixture PK-YOLO employs three backbones treating each backbone as an expert to its corresponding plane data. Then a router module integrates the outputs from the backbones into one, then pass it to YOLO model.\relax }}{4}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:model_comp}{{1}{4}{Comparison between the original PK-YOLO and the proposed PK-YOLO. Original PK-YOLO model uses single pretrained backbone model, namely SparK RepViT, fed with axial plane data. Mixture PK-YOLO employs three backbones treating each backbone as an expert to its corresponding plane data. Then a router module integrates the outputs from the backbones into one, then pass it to YOLO model.\relax }{figure.caption.3}{}}
+\citation{yolov8x}
 \bibstyle{abbrv}
 \bibdata{bibfile}
 \bibcite{asif2025advancements}{{1}{}{{}}{{}}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Router module from Mixture PK-YOLO to control the importance of plane-specific information.\relax }}{5}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:router}{{2}{5}{Router module from Mixture PK-YOLO to control the importance of plane-specific information.\relax }{figure.caption.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Model size comparison. The reduction rate indicates how much smaller Mixture PK-YOLO is compared to each model.\relax }}{5}{table.caption.5}\protected@file@percent }
+\newlabel{tab:models}{{2}{5}{Model size comparison. The reduction rate indicates how much smaller Mixture PK-YOLO is compared to each model.\relax }{table.caption.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{5}{section.5}\protected@file@percent }
+\newlabel{tab:final_comp}{{\caption@xref {tab:final_comp}{ on input line 302}}{5}{Experiments}{table.caption.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces TODO: Put caption inside.\relax }}{5}{table.caption.6}\protected@file@percent }
 \bibcite{detrframeworkbasic}{{2}{}{{}}{{}}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Comparison between the original PK-YOLO and the proposed PK-YOLO. Original PK-YOLO model uses single pretrained backbone model, namely SparK RepViT, fed with axial plane data. Mixture PK-YOLO employs three backbones treating each backbone as an expert to its corresponding plane data. Then a router module integrates the outputs from the backbones into one, then pass it to YOLO model.}}{4}{figure.1}\protected@file@percent }
-\newlabel{fig:model_comp}{{1}{4}{Comparison between the original PK-YOLO and the proposed PK-YOLO. Original PK-YOLO model uses single pretrained backbone model, namely SparK RepViT, fed with axial plane data. Mixture PK-YOLO employs three backbones treating each backbone as an expert to its corresponding plane data. Then a router module integrates the outputs from the backbones into one, then pass it to YOLO model}{figure.1}{}}
-\newlabel{tab:final_comp}{{5}{4}{Experiments}{section.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces TODO: Put caption inside.}}{4}{table.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{4}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{4}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7}Appendix}{4}{section.7}\protected@file@percent }
 \bibcite{lion}{{3}{}{{}}{{}}}
 \bibcite{lwdetr}{{4}{}{{}}{{}}}
 \bibcite{groupdetr}{{5}{}{{}}{{}}}
@@ -66,19 +70,23 @@
 \bibcite{braintumerbasic}{{8}{}{{}}{{}}}
 \bibcite{salience}{{9}{}{{}}{{}}}
 \bibcite{yolov5}{{10}{}{{}}{{}}}
-\bibcite{rcsyolo}{{11}{}{{}}{{}}}
-\bibcite{bgfyolo}{{12}{}{{}}{{}}}
-\bibcite{kang2025pk}{{13}{}{{}}{{}}}
-\bibcite{li2021medical}{{14}{}{{}}{{}}}
-\bibcite{mpsffa}{{15}{}{{}}{{}}}
-\bibcite{mrisurvey}{{16}{}{{}}{{}}}
-\bibcite{piantadosi}{{17}{}{{}}{{}}}
-\bibcite{rasool2025brain}{{18}{}{{}}{{}}}
-\bibcite{redmon2016lookonceunifiedrealtime}{{19}{}{{}}{{}}}
-\bibcite{mixture-of-experts}{{20}{}{{}}{{}}}
-\bibcite{yolov9}{{21}{}{{}}{{}}}
-\bibcite{yadav2025scalable}{{22}{}{{}}{{}}}
-\bibcite{rtdetr}{{23}{}{{}}{{}}}
-\bibcite{codetrs}{{24}{}{{}}{{}}}
+\bibcite{yolov8x}{{11}{}{{}}{{}}}
+\bibcite{rcsyolo}{{12}{}{{}}{{}}}
+\bibcite{bgfyolo}{{13}{}{{}}{{}}}
+\bibcite{kang2025pk}{{14}{}{{}}{{}}}
+\bibcite{li2021medical}{{15}{}{{}}{{}}}
+\bibcite{mpsffa}{{16}{}{{}}{{}}}
+\bibcite{mrisurvey}{{17}{}{{}}{{}}}
+\bibcite{piantadosi}{{18}{}{{}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{6}{section.6}\protected@file@percent }
+\bibcite{rasool2025brain}{{19}{}{{}}{{}}}
+\bibcite{redmon2016lookonceunifiedrealtime}{{20}{}{{}}{{}}}
+\bibcite{mixture-of-experts}{{21}{}{{}}{{}}}
+\bibcite{yolov9}{{22}{}{{}}{{}}}
+\bibcite{yadav2025scalable}{{23}{}{{}}{{}}}
+\bibcite{rtdetr}{{24}{}{{}}{{}}}
+\bibcite{codetrs}{{25}{}{{}}{{}}}
 \providecommand\NAT@force@numbers{}\NAT@force@numbers
-\gdef \@abspage@last{6}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Appendix}{8}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Detailed Performance Comparison}{8}{subsection.A.1}\protected@file@percent }
+\gdef \@abspage@last{8}

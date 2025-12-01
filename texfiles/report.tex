@@ -1,8 +1,11 @@
 \documentclass{article} % For LaTeX2e
 \usepackage[preprint]{stylefile}
 \usepackage{stylefile,times}
-\usepackage{hyperref}
 \usepackage{graphicx, subcaption}
+\usepackage[colorlinks=true, urlcolor=magenta]{hyperref}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
 \usepackage{array, makecell, amsmath, amssymb, bm, multirow}
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{url}
@@ -43,14 +46,13 @@
 Magnetic Resonance Imaging (MRI) has a central role in the detection and clinical assessment of brain tumors.
 Recent advancements in machine learning and object detection, especially YOLO-related frameworks, have significantly improved automated tumor localization in 2D multiplanar MRI slices.
 One of these, Pretrained Knowledge Guided YOLO (PK-YOLO) has demonstrated state-of-the-art performance by integrating SparK-pretrained RepViT backbone and specialized optimization techniques.
-However, the original PK-YOLO design exhibits notable limitations, primarily stemming from a plane-shift domain gap, with its backbone is pretrained exclusively on axial images, resulting in substantial performance disparities across planes.
+However, the original PK-YOLO design exhibits notable limitations, primarily stemming from a plane-shift domain gap, with its backbone pretrained exclusively on axial images, resulting in substantial performance disparities across planes.
 
-To solve this limitation, we propose a 3D Multiplanar Fusion framework.
-In this method, three different backbones, each of which is pretrained on an anatomical plane (\textit{i.e.}, axial, coronal, or sagittal), are used.
+To solve this limitation, we propose a modified model architecture, Mixture PK-YOLO.
+In this method, three different backbones, each of which is pretrained on an anatomical plane (\textit{i.e.}, axial, coronal, or sagittal), are used in a frozen manner.
 Then the outputs of the backbones are combined using an adaptive router module that learns how much weight to give each plane.
-%%%%%% Summary of the results %%%%%%
-%This strategy helps the model understand features from all three planes more effectively, reduces the gap between different MRI views, and improves overall accuracy.
-%As a result, the model becomes more reliable and better suited for detecting brain tumors across multiplanar MRI scans.
+Although experimental results show that the proposed Mixture PK-YOLO doesn't surpass that of the original PK-YOLO, it significantly reduces the number of trainable parameters while effectively showing competent model performance.
+The code is available at \href{https://github.com/3seoksw/Brain-Tumor-PK-YOLO}{https://github.com/3seoksw/Brain-Tumor-PK-YOLO}.
 
 \end{abstract}
 
@@ -206,6 +208,11 @@ As discussed in Section~\ref{sec:limits}, one of the most notable limitations of
 Inspired by the mixture-of-experts models, Mixture PK-YOLO employs three backbone models, compared to the PK-YOLO with one single backbone model, each is treated as an expert to its corresponding plane data, as shown in Figure~\ref{fig:model_comp}.
 This approach is to capture each plane-specific visual cues for each backbone models.
 
+Pretraining process of the SparK RepViT backbone models is the same with the original PK-YOLO model.
+Using the RepViT \cite{repvit} model as a foundation, it applies SparK \cite{spark} technique to incorporate domain-specific knowledge.
+During the SparK pretraining process, the model is fed with plane-specific brain tumor images to reconstruct the images with randomly masked patches.
+Given this, each SparK RepViT backbone in Mixture PK-YOLO is equipped with specialized plane-specific brain tumor knowledge, acting as an expert for its corresponding plane data.
+
 Since the proposed model have added additional two more backbone models, it is necessary to combine the outputs from the backbone models into one.
 As shown in Figure~\ref{fig:model_comp}, router module is adopted to combine the outputs from the SparK RepViT backbone models, then feed the outputs to the auxiliary CBNet and YOLOv9 as PK-YOLO did.
 Detailed visual illustration of the router module from the proposed Mixture PK-YOLO can be found in \ref{fig:router}.
@@ -320,6 +327,40 @@ In this section, we evaluate our Mixture PK-YOLO model with the original PK-YOLO
       Mixture PK-YOLO & & 640 & 0.449 & 0.574 & 0.401 & 0.213 \\
       Mixture PK-YOLO & & 320 & \underline{0.452} & 0.780 & 0.455 & 0.243 \\
       \Xhline{2\arrayrulewidth}
+  \end{tabular}
+\end{table}
+
+\subsection{Ablation Study on Freezing Backbone Models}
+
+We conducted an ablation study on freezing the three SparK RepViT backbone models for the proposed Mixture PK-YOLO.
+Table~\ref{tab:ablation} shows the number of training parameters, and the overall model performance when the backbones are frozen and unfrozen.
+
+While the Mixture PK-YOLO with unfrozen backbones achieves a slightly better performance than the one with frozen backbones in some metrics, the frozen model's overall performance exceeds the unfrozen model.
+For instance, all of the metrics from sagittal plane from the frozen model show higher performance than those of the unfrozen model.
+This is important, as the purpose of Mixture PK-YOLO is to reduce the performance gap between the axial plane and especially the sagittal plane.
+
+Another advantage of freezing backbones is the significant reduction in the number of training parameters of the model.
+Unfreezing the backbones means that the fine-tuning of three different SparK RepViT models must be done, which drastically increases the number of parameters.
+Mixture PK-YOLO with unfrozen backbones requires 217.6 million parameters to train, which is about twice as many as the original PK-YOLO.
+On the other hand, the model with frozen backbones requires 55.5 million parameters to train, which significantly reduces the total amount of parameters in the model while showing its competent performance throughout the planes.
+
+
+\begin{table}
+  \centering
+  \caption{Ablation study on freezing backbones. Bold numbers show higher performance. Not only does freezing the backbones reduce the amount of training parameters, but also increases the overall model performance.}
+  \label{tab:ablation}
+  \begin{tabular}{c | c | c | c | c | c | c}
+    \Xhline{2\arrayrulewidth}
+    Frozen Backbones & \# Params (M) & Plane & Precision & Recall & mAP$_{50}$ & mAP$_{50:95}$ \\
+    \hline \hline
+    \multirow{3}{*}{\xmark} & \multirow{3}{*}{217.6} & Axial & \textbf{0.864} & 0.802 & 0.930 & \textbf{0.632} \\
+                            & & Coronal & \textbf{0.483} & \textbf{0.781} & 0.544 & 0.354 \\
+                                     & & Sagittal & 0.403 & 0.648 & 0.392 & 0.221 \\
+    \hline
+    \multirow{3}{*}{\cmark} & \multirow{3}{*}{55.5} & Axial & 0.839 & \textbf{0.913} & \textbf{0.950} & 0.630 \\
+                            & & Coronal & 0.460 & 0.771 & \textbf{0.549} & \textbf{0.366} \\
+                            & & Sagittal & \textbf{0.452} & \textbf{0.780} & \textbf{0.455} & \textbf{0.243} \\
+    \Xhline{2\arrayrulewidth}
   \end{tabular}
 \end{table}
 

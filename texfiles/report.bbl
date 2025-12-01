@@ -105,6 +105,16 @@ N.~Shazeer, A.~Mirhoseini, K.~Maziarz, A.~Davis, Q.~Le, G.~Hinton, and J.~Dean.
 \newblock Outrageously large neural networks: The sparsely-gated mixture-of-experts layer.
 \newblock {\em arXiv preprint arXiv:1701.06538}, 2017.
 
+\bibitem{spark}
+K.~Tian, Y.~Jiang, Q.~Diao, C.~Lin, L.~Wang, and Z.~Yuan.
+\newblock Designing bert for convolutional networks: Sparse and hierarchical masked modeling.
+\newblock {\em arXiv preprint arXiv:2301.03580}, 2023.
+
+\bibitem{repvit}
+A.~Wang, H.~Chen, Z.~Lin, J.~Han, and G.~Ding.
+\newblock Repvit: Revisiting mobile cnn from vit perspective.
+\newblock In {\em Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 15909--15920, 2024.
+
 \bibitem{yolov9}
 C.-Y. Wang, I.-H. Yeh, and H.-Y. Mark~Liao.
 \newblock Yolov9: Learning what you want to learn using programmable gradient information.

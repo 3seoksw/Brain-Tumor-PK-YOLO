@@ -31,6 +31,31 @@ Pretraining code can be found [here](https://github.com/3seoksw/Brain-Tumor-PK-Y
 python train_dual.py
 ```
 
+## Result
+
+### Training Result
+
+<img src="texfiles/images/training_losses.png">
+
+Three losses are measured; `box_loss` representing bounding box loss, `cls_loss` representing classification loss, and `dlf_loss` representing objectness loss.
+
+### Experimental Result
+
+#### Performance Comparison
+
+<img src="assets/perf_tab.png">
+
+Comparison of model performance across planes.
+Bold numbers shows the best performance, and underline shows the second-best performance.
+PK-YOLO remains to achieve state-of-the-art performance, and proposed Mixture PK-YOLO achieves reasonable performance, while showing higher Recall and mAP$_{50}$ metrics on axial plane.
+
+#### Ablation Study
+
+<img src="assets/ablation.png">
+Ablation study on freezing backbones.
+Bold numbers show higher performance.
+Not only does freezing the backbones reduce the amount of training parameters, but also increases the overall model performance.
+
 ## Reference
 
 <a id="1" href="">[1]</a>
